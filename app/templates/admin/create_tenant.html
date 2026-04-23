@@ -1,0 +1,26 @@
+<form method="POST">
+
+    <h3>Tenant Info</h3>
+    <input name="name" placeholder="Tenant Name"><br>
+    <input name="username" placeholder="Username"><br>
+    <input name="password" type="password" placeholder="Password"><br>
+
+    <h3>Branches</h3>
+    <div id="branches">
+        <input name="branches[]" placeholder="Branch Name"><br>
+    </div>
+
+    <button type="button" onclick="addBranch()">➕ Add Branch</button>
+
+    <br><br>
+    <button type="submit">Create Tenant</button>
+
+</form>
+<a href="{{ url_for('admin.dashboard') }}">⬅ Back to Dashboard</a>
+
+<script>
+function addBranch() {
+    const div = document.getElementById("branches");
+    div.innerHTML += '<input name="branches[]" placeholder="Branch Name"><br>';
+}
+</script>

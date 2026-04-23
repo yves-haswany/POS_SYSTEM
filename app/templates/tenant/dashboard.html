@@ -1,0 +1,56 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>Tenant Dashboard</h2>
+
+<div class="card">
+    <h3>Welcome, {{ current_user.username }}</h3>
+</div>
+
+<div class="card">
+    <h3>Quick Actions</h3>
+    <ul>
+        <li><a href="{{ url_for('products.create_product') }}">📦 Add Product</a></li>
+        <li><a href="{{ url_for('locations.create_location_page') }}">🏪 Add Branch</a></li>
+        <li><a href="#">📊 View Reports</a></li>
+    </ul>
+</div>
+
+<div class="card">
+    <h3>Summary</h3>
+    <p>Total Products: {{ products|length }}</p>
+    <p>Total Branches: {{ branches|length }}</p>
+</div>
+<div class="card">
+    <h3>Your Branches</h3>
+
+    {% if branches %}
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Type</th>
+        </tr>
+
+        {% for branch in branches %}
+        <tr>
+            <td>{{ branch.id }}</td>
+            <td>{{ branch.name }}</td>
+            <td>
+                {% if branch.type == "store" %}
+                    🏪 Store
+                {% elif branch.type == "warehouse" %}
+                    📦 Warehouse
+                {% else %}
+                    {{ branch.type }}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p>No branches found.</p>
+    {% endif %}
+</div>
+{% endblock %}

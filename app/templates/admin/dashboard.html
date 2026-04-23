@@ -1,0 +1,44 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>Admin Dashboard</h2>
+
+<!-- Quick Actions -->
+<div class="card">
+    <h3>Actions</h3>
+    <a href="/admin/create-tenant">➕ Create New Tenant</a>
+</div>
+
+<!-- Stats -->
+<div class="card">
+    <h3>System Overview</h3>
+    <p>Total Tenants: {{ tenants|length }}</p>
+</div>
+
+<!-- Tenant List -->
+<div class="card">
+    <h3>Tenants</h3>
+
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+
+        {% for tenant in tenants %}
+        <tr>
+            <td>{{ tenant.id }}</td>
+            <td>{{ tenant.name }}</td>
+            <td>
+                <a href="/admin/tenant/{{ tenant.id }}/change-password">Change Password</a>
+                <a href="/admin/tenant/{{ tenant.id }}/edit">Edit</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</div>
+
+{% endblock %}
