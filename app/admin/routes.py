@@ -19,6 +19,13 @@ def dashboard():
 @admin_bp.route("/create-tenant", methods=["GET", "POST"])
 @login_required
 def create_tenant():
+    from flask import request, redirect, url_for, flash
+    from app.extensions import db
+    from app.core.models.tenant import Tenant
+    from app.core.models.user import User
+    from app.modules.locations.models import Location
+    from werkzeug.security import generate_password_hash
+
     if request.method == "POST":
         name = request.form.get("name")
         username = request.form.get("username")
@@ -27,12 +34,32 @@ def create_tenant():
         branch_names = request.form.getlist("branch_name[]")
         branch_types = request.form.getlist("branch_type[]")
 
-        # 1️⃣ Create tenant
+        # =========================
+        # 🔴 VALIDATION
+        # =========================
+        if not name or not username or not password:
+            flash("All tenant fields are required")
+            return redirect(url_for("admin.create_tenant"))
+
+        if not branch_names or all(not b.strip() for b in branch_names):
+            flash("At least one branch is required")
+            return redirect(url_for("admin.create_tenant"))
+
+        for i, (b_name, b_type) in enumerate(zip(branch_names, branch_types)):
+            if b_name.strip() and not b_type:
+                flash(f"Branch #{i+1} must have a type")
+                return redirect(url_for("admin.create_tenant"))
+
+        # =========================
+        # ✅ CREATE TENANT
+        # =========================
         tenant = Tenant(name=name)
         db.session.add(tenant)
-        db.session.flush()
+        db.session.flush()  # get tenant.id
 
-        # 2️⃣ Create user
+        # =========================
+        # ✅ CREATE USER
+        # =========================
         user = User(
             username=username,
             password=generate_password_hash(password),
@@ -41,18 +68,21 @@ def create_tenant():
         )
         db.session.add(user)
 
-        # 3️⃣ Create branches
-        for name, type_ in zip(branch_names, branch_types):
-            if name:
+        # =========================
+        # ✅ CREATE BRANCHES
+        # =========================
+        for branch_name, branch_type in zip(branch_names, branch_types):
+            if branch_name.strip():
                 location = Location(
-                    name=name,
-                    type=type_,
+                    name=branch_name.strip(),
+                    type=branch_type,
                     tenant_id=tenant.id
                 )
                 db.session.add(location)
 
         db.session.commit()
 
+        flash("Tenant created successfully")
         return redirect(url_for("admin.create_tenant"))
 
     return render_template("admin/create_tenant.html")
@@ -110,3 +140,18 @@ def edit_tenant(tenant_id):
         return redirect(url_for("admin.dashboard"))
 
     return render_template("admin/edit_tenant.html", tenant=tenant)
+@admin_bp.route("/tenant/<int:tenant_id>/branches")
+@login_required
+def tenant_branches(tenant_id):
+    from app.modules.locations.models import Location
+    from app.core.models.tenant import Tenant
+
+    tenant = Tenant.query.get_or_404(tenant_id)
+
+    branches = Location.query.filter_by(tenant_id=tenant.id).all()
+
+    return render_template(
+        "admin/tenant_branches.html",
+        tenant=tenant,
+        branches=branches
+    )

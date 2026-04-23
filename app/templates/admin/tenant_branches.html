@@ -1,0 +1,36 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>Branches for {{ tenant.name }}</h2>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for branch in branches %}
+    <tr>
+        <td>{{ branch.id }}</td>
+        <td>{{ branch.name }}</td>
+        <td>{{ branch.type }}</td>
+        <td>
+            <form method="POST"
+                  action="{{ url_for('locations.delete_location', location_id=branch.id) }}"
+                  style="display:inline;">
+                <button type="submit"
+                        onclick="return confirm('Delete this branch?')">
+                    🗑 Delete
+                </button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<a href="{{ url_for('admin.dashboard') }}">⬅ Back</a>
+
+{% endblock %}

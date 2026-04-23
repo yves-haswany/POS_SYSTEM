@@ -26,28 +26,41 @@
     <h3>Your Branches</h3>
 
     {% if branches %}
-    <table border="1" cellpadding="8">
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Type</th>
-        </tr>
+   
 
-        {% for branch in branches %}
-        <tr>
-            <td>{{ branch.id }}</td>
-            <td>{{ branch.name }}</td>
-            <td>
-                {% if branch.type == "store" %}
-                    🏪 Store
-                {% elif branch.type == "warehouse" %}
-                    📦 Warehouse
-                {% else %}
-                    {{ branch.type }}
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
+       <table border="1" cellpadding="8">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Actions</th> <!-- ✅ NEW COLUMN -->
+    </tr>
+
+    {% for branch in branches %}
+    <tr>
+        <td>{{ branch.id }}</td>
+        <td>{{ branch.name }}</td>
+        <td>
+            {% if branch.type == "store" %}
+                🏪 Store
+            {% elif branch.type == "warehouse" %}
+                📦 Warehouse
+            {% else %}
+                {{ branch.type }}
+            {% endif %}
+        </td>
+
+        <!-- ✅ DELETE BUTTON HERE -->
+        <td>
+            <form method="POST"
+                  action="{{ url_for('locations.delete_location', location_id=branch.id) }}"
+                  style="display:inline;">
+                <button type="submit">🗑 Delete</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
     </table>
     {% else %}
         <p>No branches found.</p>

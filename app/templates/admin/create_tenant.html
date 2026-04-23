@@ -1,3 +1,20 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>Create Tenant</h2>
+
+<!-- ✅ FLASH MESSAGES -->
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div style="color: red; margin-bottom: 15px;">
+      {% for msg in messages %}
+        <p>{{ msg }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
 <form method="POST">
 
     <h3>Tenant Info</h3>
@@ -7,7 +24,15 @@
 
     <h3>Branches</h3>
     <div id="branches">
-        <input name="branches[]" placeholder="Branch Name"><br>
+        <div>
+            <input name="branch_name[]" placeholder="Branch Name">
+            <select name="branch_type[]">
+                <option value="">Select Type</option>
+                <option value="store">Store</option>
+                <option value="warehouse">Warehouse</option>
+            </select>
+            <button type="button" onclick="removeBranch(this)">❌</button>
+        </div>
     </div>
 
     <button type="button" onclick="addBranch()">➕ Add Branch</button>
@@ -16,11 +41,39 @@
     <button type="submit">Create Tenant</button>
 
 </form>
+
 <a href="{{ url_for('admin.dashboard') }}">⬅ Back to Dashboard</a>
 
 <script>
 function addBranch() {
     const div = document.getElementById("branches");
-    div.innerHTML += '<input name="branches[]" placeholder="Branch Name"><br>';
+
+    const wrapper = document.createElement("div");
+
+    wrapper.innerHTML = `
+        <input name="branch_name[]" placeholder="Branch Name">
+        <select name="branch_type[]">
+            <option value="">Select Type</option>
+            <option value="store">Store</option>
+            <option value="warehouse">Warehouse</option>
+        </select>
+        <button type="button" onclick="removeBranch(this)">❌</button>
+    `;
+
+    div.appendChild(wrapper);
+}
+
+function removeBranch(button) {
+    const row = button.parentElement;
+
+    // prevent removing the last branch (optional safety)
+    const container = document.getElementById("branches");
+    if (container.children.length > 1) {
+        row.remove();
+    } else {
+        alert("At least one branch is required");
+    }
 }
 </script>
+
+{% endblock %}
