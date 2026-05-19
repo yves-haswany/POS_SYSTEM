@@ -1,11 +1,11 @@
 from app.extensions import db
-from app.modules.stock_movements.service import create_movement
+from app.modules.stock_movements.service import create_stock_movement
 
 
 def execute_transfer(transfer, items):
     # Remove from source
     for item in items:
-        create_movement(
+        create_stock_movement(
             product_id=item["product_id"],
             from_loc=transfer.from_location_id,
             to_loc=None,
@@ -15,7 +15,7 @@ def execute_transfer(transfer, items):
 
     # Add to destination
     for item in items:
-        create_movement(
+        create_stock_movement(
             product_id=item["product_id"],
             from_loc=None,
             to_loc=transfer.to_location_id,

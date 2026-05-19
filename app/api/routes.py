@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.tenants.middleware import get_current_tenant_id
-from app.core.models.tenant import Tenant
+from app.modules.tenants.models import Tenant
 from app.modules.orders.service import create_order
 
 api_bp = Blueprint("api", __name__)

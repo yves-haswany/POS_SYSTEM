@@ -1,39 +1,45 @@
 from app.extensions import db
-from app.modules.inventory.models import Inventory
 from app.modules.stock_movements.models import StockMovement
+from app.modules.stock_reservations.service import StockReservationService
 
 
-def update_inventory(product_id, location_id, delta):
-    inv = Inventory.query.filter_by(
-        product_id=product_id,
-        location_id=location_id
-    ).first()
+class StockMovementService:
 
-    if not inv:
-        inv = Inventory(product_id=product_id, location_id=location_id, quantity=0)
-        db.session.add(inv)
+    @staticmethod
+    def create_stock_movement(
+        tenant_id,
+        product_variant_id,
+        warehouse_id,
+        quantity,
+        movement_type,
+        reference=None,
+        notes=None,
+        created_by=None,
+        from_warehouse_id=None,
+        to_warehouse_id=None
+    ):
 
-    inv.quantity += delta
+        # 🔒 VALIDATION (IMPORTANT)
+        if quantity <= 0:
+            raise ValueError("Quantity must be greater than 0")
 
+        if movement_type not in ["IN", "OUT", "TRANSFER"]:
+            raise ValueError("Invalid movement type")
 
-def create_movement(product_id, from_loc, to_loc, quantity, type):
-    movement = StockMovement(
-        product_id=product_id,
-        from_location_id=from_loc,
-        to_location_id=to_loc,
-        quantity=quantity,
-        type=type
-    )
+        # 🔥 CREATE MOVEMENT
+        movement = StockMovement(
+            tenant_id=tenant_id,
+            product_variant_id=product_variant_id,
+            warehouse_id=warehouse_id,
+            quantity=quantity,
+            movement_type=movement_type,
+            reference=reference,
+            notes=notes,
+            created_by=created_by,
+            from_warehouse_id=from_warehouse_id,
+            to_warehouse_id=to_warehouse_id
+        )
 
-    db.session.add(movement)
+        db.session.add(movement)
 
-    # Apply stock changes
-    if from_loc:
-        update_inventory(product_id, from_loc, -quantity)
-
-    if to_loc:
-        update_inventory(product_id, to_loc, quantity)
-
-    db.session.commit()
-
-    return movement
+        return movement

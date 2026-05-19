@@ -1,0 +1,102 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>📂 Categories</h2>
+
+<!-- ===================== -->
+<!-- CREATE CATEGORY -->
+<!-- ===================== -->
+<h3>➕ Create Category</h3>
+
+<form method="POST">
+
+    <label>Category Name</label><br>
+    <input type="text" name="name" required><br><br>
+
+    <label>Parent Category (optional)</label><br>
+
+    <select name="parent_id">
+        <option value="">-- No Parent --</option>
+
+        {% for category in categories %}
+            <option value="{{ category.id }}">
+                {{ category.name }}
+            </option>
+        {% endfor %}
+
+    </select><br><br>
+
+    <button type="submit">💾 Save Category</button>
+</form>
+
+<hr>
+
+<!-- ===================== -->
+<!-- LIST CATEGORIES -->
+<!-- ===================== -->
+<h3>📋 Existing Categories</h3>
+
+<table border="1" cellpadding="8" width="100%">
+
+    <tr>
+        <th>Name</th>
+        <th>Parent</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for category in categories %}
+
+    <tr>
+
+        <!-- NAME -->
+        <td>
+            {{ category.name }}
+        </td>
+
+        <!-- PARENT -->
+        <td>
+            {{ category.parent.name if category.parent else "-" }}
+        </td>
+
+        <!-- ACTIONS -->
+        <td>
+
+            <!-- EDIT -->
+            <a href="{{ url_for('categories.edit_category', id=category.id) }}">
+                ✏️ Edit
+            </a>
+
+            |
+
+            <!-- DELETE -->
+            <form method="POST"
+                  action="{{ url_for('categories.delete_category', id=category.id) }}"
+                  style="display:inline;">
+
+                <button type="submit"
+                        onclick="return confirm('Delete this category?')">
+                    ❌ Delete
+                </button>
+
+            </form>
+
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+<hr>
+
+<!-- ===================== -->
+<!-- NAVIGATION -->
+<!-- ===================== -->
+
+<a href="{{ url_for('tenant.dashboard') }}">
+    ⬅ Back to Dashboard
+</a>
+
+{% endblock %}

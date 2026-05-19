@@ -1,0 +1,389 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<style>
+
+.variant-row{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    padding:8px;
+
+    border:1px solid #ddd;
+
+    margin-bottom:8px;
+
+    flex-wrap:wrap;
+
+}
+
+.variant-label{
+
+    min-width:120px;
+
+    font-weight:bold;
+
+}
+
+.qty-box{
+
+    width:80px;
+
+}
+
+.barcode-box{
+
+    width:180px;
+
+}
+
+.size-block{
+
+    border:1px solid black;
+
+    padding:10px;
+
+    margin-bottom:15px;
+
+}
+
+.color-row{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    margin-left:20px;
+
+    margin-bottom:8px;
+
+    flex-wrap:wrap;
+
+}
+
+</style>
+
+<h2>
+
+Variant Matrix - {{ product.name }}
+
+</h2>
+
+<form method="POST">
+
+<!-- ====================================== -->
+<!-- SIZE ONLY -->
+<!-- ====================================== -->
+
+{% if product.has_size and not product.has_color %}
+
+<h3>Select Size Scale</h3>
+
+{% for scale in size_scales %}
+
+<label>
+
+<input
+    type="radio"
+    name="size_scale_id"
+    value="{{ scale.id }}"
+    class="scale-selector"
+>
+
+{{ scale.name }}
+
+</label>
+
+<br>
+
+{% endfor %}
+
+<hr>
+
+{% for scale in size_scales %}
+
+<div
+    class="scale-sizes"
+    data-scale="{{ scale.id }}"
+    style="display:none;"
+>
+
+<h4>
+
+{{ scale.name }}
+
+</h4>
+
+{% for size in scale.items %}
+
+<div class="variant-row">
+
+<label class="variant-label">
+
+<input
+    type="checkbox"
+    name="selected_sizes"
+    value="{{ size.id }}"
+>
+
+{{ size.value }}
+
+</label>
+
+Qty
+
+<input
+    class="qty-box"
+    type="number"
+    min="0"
+    value="0"
+    name="qty_size_{{ size.id }}"
+>
+
+Barcode
+
+<input
+    class="barcode-box"
+    type="text"
+    name="barcode_size_{{ size.id }}"
+>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endfor %}
+
+{% endif %}
+
+
+
+<!-- ====================================== -->
+<!-- COLOR ONLY -->
+<!-- ====================================== -->
+
+{% if product.has_color and not product.has_size %}
+
+<h3>Select Colors</h3>
+
+{% for color in colors %}
+
+<div class="variant-row">
+
+<label class="variant-label">
+
+<input
+    type="checkbox"
+    name="selected_colors"
+    value="{{ color.id }}"
+>
+
+{{ color.name }}
+
+</label>
+
+Qty
+
+<input
+    class="qty-box"
+    type="number"
+    min="0"
+    value="0"
+    name="qty_color_{{ color.id }}"
+>
+
+Barcode
+
+<input
+    class="barcode-box"
+    type="text"
+    name="barcode_color_{{ color.id }}"
+>
+
+</div>
+
+{% endfor %}
+
+{% endif %}
+
+
+
+<!-- ====================================== -->
+<!-- SIZE + COLOR -->
+<!-- ====================================== -->
+
+{% if product.has_size and product.has_color %}
+
+<h3>Select Size Scale</h3>
+
+{% for scale in size_scales %}
+
+<label>
+
+<input
+    type="radio"
+    name="size_scale_id"
+    value="{{ scale.id }}"
+    class="scale-selector"
+>
+
+{{ scale.name }}
+
+</label>
+
+<br>
+
+{% endfor %}
+
+<hr>
+
+{% for scale in size_scales %}
+
+<div
+    class="scale-sizes"
+    data-scale="{{ scale.id }}"
+    style="display:none;"
+>
+
+{% for size in scale.items %}
+
+<div class="size-block">
+
+<label>
+
+<input
+    type="checkbox"
+    name="selected_sizes"
+    value="{{ size.id }}"
+>
+
+<strong>
+
+{{ size.value }}
+
+</strong>
+
+</label>
+
+<hr>
+
+{% for color in colors %}
+
+<div class="color-row">
+
+<label class="variant-label">
+
+<input
+    type="checkbox"
+    name="color_{{ size.id }}"
+    value="{{ color.id }}"
+>
+
+{{ color.name }}
+
+</label>
+
+Qty
+
+<input
+    class="qty-box"
+    type="number"
+    min="0"
+    value="0"
+    name="qty_{{ size.id }}_{{ color.id }}"
+>
+
+Barcode
+
+<input
+    class="barcode-box"
+    type="text"
+    name="barcode_{{ size.id }}_{{ color.id }}"
+>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endfor %}
+
+{% endif %}
+
+<br>
+
+<button type="submit">
+
+💾 Save Variants
+
+</button>
+
+</form>
+
+<script>
+
+document
+.querySelectorAll(
+".scale-selector"
+)
+.forEach(function(el){
+
+el.addEventListener(
+
+"change",
+
+function(){
+
+document
+.querySelectorAll(
+".scale-sizes"
+)
+.forEach(function(x){
+
+x.style.display =
+"none";
+
+});
+
+let target =
+
+document.querySelector(
+
+'[data-scale="' +
+
+this.value +
+
+'"]'
+
+);
+
+if(target){
+
+target.style.display =
+"block";
+
+}
+
+}
+
+);
+
+});
+
+</script>
+
+{% endblock %}

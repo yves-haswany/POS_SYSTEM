@@ -1,0 +1,104 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>📦 Orders</h2>
+
+<p>
+    Logged in as:
+    <b>{{ current_user.username }}</b>
+    ({{ current_user.role }})
+</p>
+
+<hr>
+
+<a href="{{ url_for('branch.dashboard') }}">
+    ← Back to POS
+</a>
+
+<br><br>
+
+{% if orders %}
+
+<table border="1" cellpadding="8">
+
+    <tr>
+        <th>ID</th>
+        <th>Created By</th>
+        <th>Total</th>
+        <th>Date</th>
+
+        {% if current_user.role in ['branch_admin', 'branch_manager'] %}
+            <th>Actions</th>
+        {% endif %}
+    </tr>
+
+    {% for order in orders %}
+
+    <tr>
+
+        <td>#{{ order.id }}</td>
+
+        <td>
+            {% if order.creator %}
+                {{ order.creator.username }}
+            {% else %}
+                Unknown
+            {% endif %}
+        </td>
+
+        <td>${{ order.total }}</td>
+
+        <td>
+            {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}
+        </td>
+
+        {% if current_user.role in ['branch_admin', 'branch_manager'] %}
+
+        <td>
+
+            <!-- EDIT -->
+            <a href="{{ url_for('branch.edit_order', id=order.id) }}">
+                ✏️ Edit
+            </a>
+
+            <!-- ADMIN ONLY DELETE -->
+            {% if current_user.role == 'branch_admin' %}
+
+            <form
+                method="POST"
+                action="{{ url_for('branch.delete_order', id=order.id) }}"
+                style="display:inline;"
+            >
+
+                <button
+                    type="submit"
+                    onclick="return confirm('Delete order?')"
+                >
+                    ❌ Delete
+                </button>
+                <a href="{{ url_for('branch.order_invoice', id=order.id) }}">
+    🧾 View Invoice
+</a>
+
+            </form>
+
+            {% endif %}
+
+        </td>
+
+        {% endif %}
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+{% else %}
+
+<p>No orders found.</p>
+
+{% endif %}
+
+{% endblock %}

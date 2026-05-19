@@ -1,0 +1,50 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>Manage Scale: {{ scale.name }}</h2>
+
+<form method="POST">
+
+    <label>Size Value</label><br>
+
+    <input type="text"
+           name="value"
+           placeholder="S or 42"
+           required><br><br>
+
+    <label>Sort Order</label><br>
+
+    <input type="number"
+           name="sort_order"
+           value="0"><br><br>
+
+    <button type="submit">
+        ➕ Add Size
+    </button>
+
+</form>
+
+<hr>
+
+<h3>Sizes</h3>
+
+<table border="1" cellpadding="10">
+
+<tr>
+    <th>Order</th>
+    <th>Value</th>
+</tr>
+
+{% for item in scale.items|sort(attribute='sort_order') %}
+
+<tr>
+    <td>{{ item.sort_order }}</td>
+    <td>{{ item.value }}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+{% endblock %}

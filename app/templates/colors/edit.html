@@ -1,0 +1,144 @@
+    {% extends "shared/base.html" %}
+
+    {% block content %}
+
+    <h2>✏️ Edit Color</h2>
+
+    <form method="POST">
+
+        <label>Color Name</label><br>
+
+        <input
+            type="text"
+            name="name"
+            id="colorName"
+            value="{{ color.name }}"
+            required
+        >
+
+        <br><br>
+
+        <label>Generated Hex Code</label><br>
+
+        <input
+            type="text"
+            id="hexPreview"
+            value="{{ color.hex_code }}"
+            readonly
+            style="
+                background:#f4f4f4;
+                padding:6px;
+            "
+        >
+
+        <br><br>
+
+        <!-- COLOR PREVIEW -->
+        <div
+            id="colorBox"
+            style="
+                width:80px;
+                height:40px;
+                border:1px solid #ccc;
+                border-radius:6px;
+                background-color: '{{ color.hex_code }}'';
+            "
+        ></div>
+
+        <br>
+
+        <button type="submit">
+            💾 Update Color
+        </button>
+
+    </form>
+
+    <hr>
+
+    <a href="{{ url_for('colors.create_color') }}">
+        ⬅ Back to Colors
+    </a>
+
+    <br><br>
+
+    <a href="{{ url_for('tenant.dashboard') }}">
+        🏠 Back to Dashboard
+    </a>
+
+    <script>
+
+        const colorInput = document.getElementById("colorName");
+        const hexPreview = document.getElementById("hexPreview");
+        const colorBox = document.getElementById("colorBox");
+
+        const predefinedColors = {
+
+            red: "#FF0000",
+            blue: "#0000FF",
+            green: "#008000",
+            yellow: "#FFFF00",
+            black: "#000000",
+            white: "#FFFFFF",
+            gray: "#808080",
+            grey: "#808080",
+            orange: "#FFA500",
+            purple: "#800080",
+            pink: "#FFC0CB",
+            brown: "#A52A2A",
+            cyan: "#00FFFF",
+            magenta: "#FF00FF",
+            lime: "#00FF00",
+            navy: "#000080",
+            teal: "#008080",
+            olive: "#808000",
+            maroon: "#800000",
+            silver: "#C0C0C0",
+            gold: "#FFD700",
+            beige: "#F5F5DC",
+            ivory: "#FFFFF0",
+            coral: "#FF7F50",
+            turquoise: "#40E0D0"
+
+        };
+
+        function getColorHex(name) {
+
+            const key = name.trim().toLowerCase();
+
+            if (predefinedColors[key]) {
+                return predefinedColors[key];
+            }
+
+            let hash = 0;
+
+            for (let i = 0; i < key.length; i++) {
+                hash = key.charCodeAt(i) + ((hash << 5) - hash);
+            }
+
+            let color = "#";
+
+            for (let i = 0; i < 3; i++) {
+
+                const value = (hash >> (i * 8)) & 255;
+
+                color += ("00" + value.toString(16)).slice(-2);
+
+            }
+
+            return color.toUpperCase();
+
+        }
+
+        colorInput.addEventListener("input", function () {
+
+            const color = getColorHex(this.value);
+
+            hexPreview.value = color;
+
+            colorBox.style.backgroundColor = color;
+
+        });
+
+    </script>
+
+    {% endblock %}

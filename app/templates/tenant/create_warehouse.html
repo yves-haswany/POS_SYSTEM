@@ -1,0 +1,53 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>Create Warehouse</h2>
+
+<form method="POST">
+
+    <!-- ========================= -->
+    <!-- NAME -->
+    <!-- ========================= -->
+    <label>Warehouse Name</label><br>
+    <input type="text" name="name" required><br><br>
+
+    <!-- ========================= -->
+    <!-- BRAND -->
+    <!-- ========================= -->
+    <label>Select Brand</label><br>
+    <select name="brand_id" required>
+        {% for brand in brands %}
+            <option value="{{ brand.id }}">
+                {{ brand.name }} (Brand)
+            </option>
+        {% endfor %}
+    </select>
+
+    <br><br>
+
+    <!-- ========================= -->
+    <!-- BRANCH (OPTIONAL) -->
+    <!-- ========================= -->
+    <label>Select Branch (optional)</label><br>
+    <select name="branch_id">
+        <option value="">-- Main Warehouse (No Branch) --</option>
+
+        {% for branch in branches %}
+            <option value="{{ branch.id }}">
+                {{ branch.name }} (Branch)
+            </option>
+        {% endfor %}
+    </select>
+
+    <br><br>
+
+    <button type="submit">Create Warehouse</button>
+
+</form>
+
+<hr>
+
+<a href="{{ url_for('tenant.dashboard') }}">⬅ Back</a>
+
+{% endblock %}

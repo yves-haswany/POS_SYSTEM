@@ -1,0 +1,48 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>Branch Users</h2>
+
+<a href="{{ url_for('branch.create_user') }}">➕ Create User</a>
+
+<hr>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for user in users %}
+    <tr>
+        <td>{{ user.username }}</td>
+        <td>{{ user.role }}</td>
+        <td>
+
+            <!-- EDIT -->
+            <a href="{{ url_for('branch.edit_user', id=user.id) }}">✏️ Edit</a>
+
+            <!-- DELETE -->
+            {% if user.id != current_user.id %}
+            <form method="POST"
+                  action="{{ url_for('branch.delete_user', id=user.id) }}"
+                  style="display:inline;">
+                <button type="submit"
+                        onclick="return confirm('Delete this user?')">
+                    🗑 Delete
+                </button>
+            </form>
+            {% endif %}
+
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<hr>
+
+<a href="{{ url_for('branch.dashboard') }}">⬅ Back to Dashboard</a>
+
+{% endblock %}

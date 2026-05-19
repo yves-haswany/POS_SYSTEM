@@ -1,28 +1,145 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
 <h2>Edit Tenant: {{ tenant.name }}</h2>
 
-<h3>Existing Branches</h3>
-<ul>
-    {% for loc in tenant.locations %}
-        <li>{{ loc.name }}</li>
-    {% endfor %}
-</ul>
-
 <form method="POST">
+
+<!-- EXISTING BRANCHES -->
+<div class="card">
+    <h3>Existing Branches</h3>
+
+    {% if branches %}
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>Company</th>
+            <th>Brand</th>
+            <th>Branch</th>
+            <th>Username</th>
+            <th>Password</th>
+        </tr>
+
+        {% for branch in branches %}
+        <tr>
+
+            <input type="hidden" name="branch_id[]" value="{{ branch.id }}">
+
+            <!-- SAFE COMPANY -->
+            <td>
+                {{ branch.brand.company.name if branch.brand and branch.brand.company else "—" }}
+            </td>
+
+            <!-- BRAND -->
+            <td>
+                <select name="branch_brand_id[]">
+                    {% for company in companies %}
+                        <optgroup label="{{ company.name }}">
+                            {% for brand in company.brands %}
+                                <option value="{{ brand.id }}"
+                                    {% if branch.brand_id == brand.id %}selected{% endif %}>
+                                    {{ brand.name }}
+                                </option>
+                            {% endfor %}
+                        </optgroup>
+                    {% endfor %}
+                </select>
+            </td>
+
+            <td>
+                <input name="branch_name[]" value="{{ branch.name }}">
+            </td>
+
+            <td>
+                <input name="branch_username[]" placeholder="Username">
+            </td>
+
+            <td>
+                <input name="branch_password[]" type="password" placeholder="Leave blank">
+            </td>
+
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p>No branches found.</p>
+    {% endif %}
+</div>
+
+<!-- NEW BRANCHES -->
+<div class="card">
     <h3>Add New Branches</h3>
 
     <div id="branches">
-        <input name="branches[]" placeholder="Branch Name"><br>
+        <div>
+            <input type="hidden" name="branch_id[]" value="">
+
+            <select name="branch_brand_id[]">
+                {% for company in companies %}
+                    <optgroup label="{{ company.name }}">
+                        {% for brand in company.brands %}
+                            <option value="{{ brand.id }}">{{ brand.name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+
+            <input name="branch_name[]" placeholder="Branch Name">
+            <input name="branch_username[]" placeholder="Username">
+            <input name="branch_password[]" type="password" placeholder="Password">
+
+            <button type="button" onclick="removeBranch(this)">❌</button>
+        </div>
     </div>
 
     <button type="button" onclick="addBranch()">➕ Add Branch</button>
 
     <br><br>
-    <button type="submit">Save</button>
+    <button type="submit">Save Changes</button>
+</div>
+
 </form>
+
+<a href="{{ url_for('admin.dashboard') }}">⬅ Back</a>
 
 <script>
 function addBranch() {
     const div = document.getElementById("branches");
-    div.innerHTML += '<input name="branches[]" placeholder="Branch Name"><br>';
+
+    const wrapper = document.createElement("div");
+
+    wrapper.innerHTML = `
+        <input type="hidden" name="branch_id[]" value="">
+
+        <select name="branch_brand_id[]">
+            {% for company in companies %}
+                <optgroup label="{{ company.name }}">
+                    {% for brand in company.brands %}
+                        <option value="{{ brand.id }}">{{ brand.name }}</option>
+                    {% endfor %}
+                </optgroup>
+            {% endfor %}
+        </select>
+
+        <input name="branch_name[]" placeholder="Branch Name">
+        <input name="branch_username[]" placeholder="Username">
+        <input name="branch_password[]" type="password" placeholder="Password">
+
+        <button type="button" onclick="removeBranch(this)">❌</button>
+    `;
+
+    div.appendChild(wrapper);
+}
+
+function removeBranch(btn) {
+    const container = document.getElementById("branches");
+
+    if (container.children.length > 1) {
+        btn.parentElement.remove();
+    } else {
+        alert("At least one branch is required");
+    }
 }
 </script>
+
+{% endblock %}

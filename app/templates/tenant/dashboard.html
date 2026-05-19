@@ -1,69 +1,244 @@
 {% extends "shared/base.html" %}
 
 {% block content %}
+<style>
+.quick-actions ul{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px 10px;
+    padding-left: 20px; /* keeps bullet alignment nice */
+}
 
+.quick-actions li{
+    margin: 0;
+}
+</style>
 <h2>Tenant Dashboard</h2>
 
 <div class="card">
     <h3>Welcome, {{ current_user.username }}</h3>
 </div>
 
-<div class="card">
+<!-- ========================= -->
+<!-- QUICK ACTIONS -->
+<!-- ========================= -->
+<div class="card quick-actions">
     <h3>Quick Actions</h3>
     <ul>
-        <li><a href="{{ url_for('products.create_product') }}">📦 Add Product</a></li>
-        <li><a href="{{ url_for('locations.create_location_page') }}">🏪 Add Branch</a></li>
-        <li><a href="#">📊 View Reports</a></li>
+        <li>
+            <a href="{{ url_for('products.create_product') }}">
+                📦 Create Product
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('categories.create_category') }}">
+                🗂️ Create Category
+            </a>
+        </li>
+        <!--<li>
+    <a href="{{ url_for('categories.list_categories') }}">
+        📂 View Categories
+    </a>
+</li>-->
+    <li>
+    <a href="{{ url_for('size_scales.create_scale') }}">
+        📏 Size Scales
+    </a>
+</li>
+<!--<li>
+    <a href="{{ url_for('colors.list_colors') }}">
+        🎨 Manage Colors
+    </a>
+</li>-->
+<li>
+    <a href ="{{url_for('colors.create_color')}}">
+        🎨 Colors
+    </a>
+</li>
+        <!--<li>
+            <a href="{{ url_for('tenant.create_warehouse') }}">
+                🏭 Create Warehouse
+            </a>
+        </li>-->
+
+        <li>
+            <a href="{{ url_for('transfers.create_transfer') }}">
+                🔄 Create Transfer
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ url_for('transfers.list_transfers') }}">
+                📋 View All Transfers
+            </a>
+        </li>
+        <li>
+    <a href="{{ url_for('pricing.create_price_list') }}">
+        💰 Create Price List
+    </a>
+</li>
     </ul>
 </div>
 
+<!-- ========================= -->
+<!-- SUMMARY -->
+<!-- ========================= -->
 <div class="card">
     <h3>Summary</h3>
-    <p>Total Products: {{ products|length }}</p>
-    <p>Total Branches: {{ branches|length }}</p>
+    <p>Total Products: {{ products | length }}</p>
+    <p>Total Warehouses: {{ warehouses | length if warehouses else 0 }}</p>
+    <p>Total Transfers: {{ transfers | length if transfers else 0 }}</p>
 </div>
+
+<!-- ========================= -->
+<!-- PRODUCTS -->
+<!-- ========================= -->
 <div class="card">
-    <h3>Your Branches</h3>
+    <h3>Products</h3>
 
-    {% if branches %}
-   
+    {% if products %}
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>SKU</th>
+            <th>Price</th>
+            <th>Action</th>
+        </tr>
 
-       <table border="1" cellpadding="8">
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Actions</th> <!-- ✅ NEW COLUMN -->
-    </tr>
-
-    {% for branch in branches %}
-    <tr>
-        <td>{{ branch.id }}</td>
-        <td>{{ branch.name }}</td>
-        <td>
-            {% if branch.type == "store" %}
-                🏪 Store
-            {% elif branch.type == "warehouse" %}
-                📦 Warehouse
-            {% else %}
-                {{ branch.type }}
-            {% endif %}
-        </td>
-
-        <!-- ✅ DELETE BUTTON HERE -->
-        <td>
-            <form method="POST"
-                  action="{{ url_for('locations.delete_location', location_id=branch.id) }}"
-                  style="display:inline;">
-                <button type="submit">🗑 Delete</button>
-            </form>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.id }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.sku }}</td>
+            <td>{{ product.price }}</td>
+            <td>
+                <a href="{{ url_for('products.edit_product', product_id=product.id) }}">
+                    ✏️ Edit
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
     </table>
     {% else %}
-        <p>No branches found.</p>
+        <p>No products found.</p>
     {% endif %}
 </div>
+
+<!-- ========================= -->
+<!-- WAREHOUSES -->
+<!-- ========================= -->
+<div class="card">
+    <h3>Warehouses</h3>
+
+    {% if warehouses %}
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Brand</th>
+            <th>Scope</th>
+            <th>Actions</th>
+        </tr>
+
+        {% for warehouse in warehouses %}
+        <tr>
+            <td>{{ warehouse.id }}</td>
+            <td>{{ warehouse.name }}</td>
+
+            <td>
+                {{ warehouse.brand.name if warehouse.brand else "—" }}
+            </td>
+
+            <td>
+                {% if warehouse.branch_id %}
+                    🏬 Branch Warehouse
+                {% else %}
+                    🏭 Main Warehouse
+                {% endif %}
+            </td>
+
+            <td>
+                <a href="{{ url_for('tenant.edit_warehouse', warehouse_id=warehouse.id) }}">
+                    ✏️ Edit
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p>No warehouses found.</p>
+    {% endif %}
+</div>
+
+<!-- ========================= -->
+<!-- 🔄 TRANSFERS -->
+<!-- ========================= -->
+<!--<div class="card">
+    <h3>Transfers</h3>
+
+    {% if transfers %}
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>ID</th>
+            <th>Source</th>
+            <th>Destination</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+
+        {% for t in transfers %}
+        <tr>
+            <td>{{ t.id }}</td>
+
+            <td>
+                {{ t.source_warehouse.name if t.source_warehouse else t.source_warehouse_id }}
+            </td>
+
+            <td>
+                {{ t.destination_warehouse.name if t.destination_warehouse else t.destination_warehouse_id }}
+            </td>
+
+            <td>
+                {% if t.status == "pending" %}
+                    🟡 Pending
+                {% elif t.status == "approved" %}
+                    🔵 Approved
+                {% elif t.status == "in_transit" %}
+                    🚚 In Transit
+                {% elif t.status == "received" %}
+                    ✅ Received
+                {% elif t.status == "rejected" %}
+                    ❌ Rejected
+                {% endif %}
+            </td>
+
+            <td>
+
+                {% if t.status == "pending" %}
+                    <a href="{{ url_for('transfers.approve_transfer', id=t.id) }}">✅ Approve</a>
+                    |
+                    <a href="{{ url_for('transfers.reject_transfer', id=t.id) }}">❌ Reject</a>
+                {% endif %}
+
+                {% if t.status == "approved" %}
+                    |
+                    <a href="{{ url_for('transfers.send_transfer', id=t.id) }}">🚚 Send</a>
+                {% endif %}
+
+                {% if t.status == "in_transit" %}
+                    |
+                    <a href="{{ url_for('transfers.receive_transfer', id=t.id) }}">📥 Receive</a>
+                {% endif %}
+
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    {% else %}
+        <p>No transfers found.</p>
+    {% endif %}
+</div>-->
+
 {% endblock %}

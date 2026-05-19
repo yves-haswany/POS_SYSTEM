@@ -1,6 +1,6 @@
 from werkzeug.security import generate_password_hash
 from app.extensions import db
-from app.core.models.user import User
+from app.modules.users.models import User
 
 
 def create_user(username, password, role, tenant_id=None, location_id=None):

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice #{{ order.id }}</title>
+
+    <style>
+
+        body {
+            font-family: Arial;
+            padding: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .right {
+            text-align: right;
+        }
+
+        .print-btn {
+            margin-top: 20px;
+        }
+
+        @media print {
+
+            .print-btn {
+                display: none;
+            }
+
+        }
+
+    </style>
+</head>
+<body>
+
+<h1>INVOICE</h1>
+
+<p>
+    <strong>Invoice #:</strong>
+    {{ order.id }}
+</p>
+
+<p>
+    <strong>Date:</strong>
+    {{ order.created_at }}
+</p>
+
+<p>
+    <strong>Cashier:</strong>
+    {{ order.creator.username }}
+</p>
+
+<hr>
+
+<table>
+
+    <tr>
+        <th>Product</th>
+        <th>Qty</th>
+        <th>Price</th>
+        <th>Total</th>
+    </tr>
+
+    {% for item in order.items %}
+
+    <tr>
+
+        <td>{{ item.product.name }}</td>
+
+        <td>{{ item.quantity }}</td>
+
+        <td>${{ item.price }}</td>
+
+        <td>
+            ${{ item.quantity * item.price }}
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+<h2 class="right">
+    Total: ${{ order.total }}
+</h2>
+
+<button
+    class="print-btn"
+    onclick="window.print()"
+>
+    🖨 Print Invoice
+</button>
+
+</body>
+</html>

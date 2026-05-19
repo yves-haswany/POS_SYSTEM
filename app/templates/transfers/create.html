@@ -1,0 +1,126 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>Create Transfer</h2>
+
+<!-- ===================================================== -->
+<!-- STEP 1 → LOAD INVENTORY -->
+<!-- ===================================================== -->
+<form method="POST">
+
+    <input type="hidden" name="load_inventory" value="1">
+
+    <label>Source Warehouse</label><br>
+
+    <select name="source_warehouse_id" required>
+        <option value="">Select Source</option>
+
+        {% for w in warehouses %}
+            <option value="{{ w.id }}"
+                {% if selected_source == w.id %}selected{% endif %}>
+                {{ w.name }}
+                {% if w.branch_id %}
+                    (Branch)
+                {% else %}
+                    (Main)
+                {% endif %}
+            </option>
+        {% endfor %}
+    </select>
+
+    <br><br>
+
+    <button type="submit">
+        Load Products
+    </button>
+
+</form>
+
+<hr>
+
+<!-- ===================================================== -->
+<!-- STEP 2 → CREATE TRANSFER -->
+<!-- ===================================================== -->
+{% if inventory %}
+
+<form method="POST">
+
+    <input type="hidden" name="create_transfer" value="1">
+    <input type="hidden"
+           name="source_warehouse_id"
+           value="{{ selected_source }}">
+
+    <label>Destination Warehouse</label><br>
+
+    <select name="destination_warehouse_id" required>
+
+        {% for w in warehouses %}
+
+            {% if w.id != selected_source %}
+
+                <option value="{{ w.id }}">
+                    {{ w.name }}
+
+                    {% if w.branch_id %}
+                        (Branch)
+                    {% else %}
+                        (Main)
+                    {% endif %}
+                </option>
+
+            {% endif %}
+
+        {% endfor %}
+
+    </select>
+
+    <br><br>
+
+    <h3>Available Products</h3>
+
+    <table border="1" cellpadding="8">
+
+        <tr>
+            <th>Product</th>
+            <th>Available Stock</th>
+            <th>Quantity</th>
+        </tr>
+
+        {% for item in inventory %}
+        <tr>
+
+            <td>{{ item.product.name }}</td>
+
+            <td>{{ item.quantity }}</td>
+
+            <td>
+                <input type="number"
+                       name="qty_{{ item.product.id }}"
+                       min="0"
+                       max="{{ item.quantity }}"
+                       value="0">
+            </td>
+
+        </tr>
+        {% endfor %}
+
+    </table>
+
+    <br>
+
+    <button type="submit">
+        📦 Create Transfer
+    </button>
+
+</form>
+
+{% endif %}
+
+<hr>
+
+<a href="{{ url_for('tenant.dashboard') }}">
+    ⬅ Back
+</a>
+
+{% endblock %}

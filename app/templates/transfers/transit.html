@@ -1,0 +1,60 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>Incoming Transfers (Transit)</h2>
+
+<!-- 🔔 FLASH MESSAGES -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div style="padding:10px; margin:5px 0; background:#eee;">
+        <strong>{{ category.upper() }}:</strong> {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+{% if transfers %}
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>ID</th>
+        <th>From Warehouse</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for t in transfers %}
+    <tr>
+        <td>{{ t.id }}</td>
+        <td>{{ t.source_warehouse_id }}</td>
+        <td>{{ t.status }}</td>
+
+        <td style="display:flex; gap:10px;">
+
+            <!-- ACCEPT -->
+            <form method="POST" action="{{ url_for('transfers.accept_transfer', id=t.id) }}">
+                <button type="submit" style="background:green;color:white;">
+                    ✅ Accept
+                </button>
+            </form>
+
+            <!-- REJECT -->
+            <form method="POST" action="{{ url_for('transfers.reject_transfer', id=t.id) }}">
+                <button type="submit" style="background:red;color:white;">
+                    ❌ Reject
+                </button>
+            </form>
+
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+{% else %}
+<p>No incoming transfers</p>
+{% endif %}
+
+{% endblock %}

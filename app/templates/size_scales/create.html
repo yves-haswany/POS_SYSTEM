@@ -1,0 +1,307 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<style>
+
+.uniform-btn{
+
+    width:140px;
+
+    padding:8px 10px;
+
+    text-align:center;
+
+    box-sizing:border-box;
+
+}
+
+.action-btn{
+
+    width:120px;
+
+    padding:6px;
+
+    text-align:center;
+
+    box-sizing:border-box;
+
+}
+
+.size-row{
+
+    margin-bottom:10px;
+
+}
+
+</style>
+
+<h2>📏 Size Scale Management</h2>
+
+<!-- ========================= -->
+<!-- CREATE SCALE -->
+<!-- ========================= -->
+
+<form method="POST">
+
+    <label>Scale Name</label><br>
+
+    <input
+        type="text"
+        name="name"
+        placeholder="Apparel Alpha"
+        required
+    >
+
+    <br><br>
+
+    <!-- ========================= -->
+    <!-- SIZES -->
+    <!-- ========================= -->
+
+    <h3>Sizes</h3>
+
+    <div id="sizesContainer">
+
+        <div class="size-row">
+
+            <input
+                type="text"
+                name="sizes[]"
+                placeholder="Size (S, M, L...)"
+                required
+            >
+
+        </div>
+
+    </div>
+
+    <br>
+
+    <button
+        type="button"
+        class="uniform-btn"
+        onclick="addSizeField()"
+    >
+        ➕ Add Size
+    </button>
+
+    <br><br>
+
+    <button
+        type="submit"
+        class="uniform-btn"
+    >
+        💾 Create Scale
+    </button>
+
+</form>
+
+<hr>
+
+<!-- ========================= -->
+<!-- EXISTING SCALES -->
+<!-- ========================= -->
+
+<h3>📋 Existing Scales</h3>
+
+{% if scales %}
+
+    {% for scale in scales %}
+
+    <div
+        style="
+            border:1px solid #ccc;
+            padding:15px;
+            margin-bottom:20px;
+            border-radius:8px;
+        "
+    >
+
+        <h4>{{ scale.name }}</h4>
+
+        <p>
+            <strong>ID:</strong> {{ scale.id }}
+        </p>
+
+        <!-- ========================= -->
+        <!-- SIZE TABLE -->
+        <!-- ========================= -->
+
+        {% if scale.items %}
+
+        <table border="1" cellpadding="10">
+
+            <tr>
+
+                <th>Sort Order</th>
+
+                <th>Size</th>
+
+                <th>Actions</th>
+
+            </tr>
+
+            {% for size in scale.items|sort(attribute='sort_order') %}
+
+            <tr>
+
+                <td>
+
+                    {{ size.sort_order }}
+
+                </td>
+
+                <td>
+
+                    {{ size.value }}
+
+                </td>
+
+                <td>
+
+                    <a href="{{ url_for('size_scales.edit_size', id=size.id) }}">
+
+                        ✏️ Edit
+
+                    </a>
+
+                    |
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('size_scales.delete_size', id=size.id) }}"
+                        style="display:inline;"
+                    >
+
+                        <button
+                            type="submit"
+                            class="action-btn"
+                            onclick="return confirm('Delete this size?')"
+                        >
+
+                            🗑️ Delete
+
+                        </button>
+
+                    </form>
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+        {% else %}
+
+        <p>No sizes added.</p>
+
+        {% endif %}
+
+        <br>
+
+        <a href="{{ url_for('size_scales.edit_scale', id=scale.id) }}">
+
+            ✏️ Edit Scale
+
+        </a>
+
+        |
+
+        <form
+            method="POST"
+            action="{{ url_for('size_scales.delete_scale', id=scale.id) }}"
+            style="display:inline;"
+        >
+
+            <button
+                type="submit"
+                class="action-btn"
+                onclick="return confirm('Delete this scale?')"
+            >
+
+                🗑️ Delete Scale
+
+            </button>
+
+        </form>
+
+    </div>
+
+    {% endfor %}
+
+{% else %}
+
+<p>No scales created yet.</p>
+
+{% endif %}
+
+<hr>
+
+<a href="{{ url_for('tenant.dashboard') }}">
+
+    ⬅ Back to Dashboard
+
+</a>
+
+<!-- ========================= -->
+<!-- JAVASCRIPT -->
+<!-- ========================= -->
+
+<script>
+
+function addSizeField(){
+
+    const container =
+
+        document.getElementById(
+            "sizesContainer"
+        );
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.classList.add(
+        "size-row"
+    );
+
+    div.innerHTML = `
+
+        <input
+            type="text"
+            name="sizes[]"
+            placeholder="Size"
+            required
+        >
+
+        <button
+            type="button"
+            class="action-btn"
+            onclick="removeSizeField(this)"
+        >
+
+            ❌ Remove
+
+        </button>
+
+    `;
+
+    container.appendChild(
+        div
+    );
+
+}
+
+function removeSizeField(button){
+
+    button.parentElement.remove();
+
+}
+
+</script>
+
+{% endblock %}

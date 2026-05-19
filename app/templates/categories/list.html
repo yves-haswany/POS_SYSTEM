@@ -1,0 +1,44 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>Categories</h2>
+
+<a href="{{ url_for('categories.create_category') }}">
+    ➕ Create Category
+</a>
+
+<hr>
+
+<table border="1" cellpadding="10">
+
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Parent</th>
+    </tr>
+
+    {% for category in categories %}
+
+    <tr>
+
+        <td>{{ category.id }}</td>
+
+        <td>{{ category.name }}</td>
+
+        <td>
+            {% if category.parent %}
+                {{ category.parent.name }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+<a href="{{ url_for('tenant.dashboard') }}">⬅ Back</a>
+
+{% endblock %}

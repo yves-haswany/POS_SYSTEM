@@ -1,0 +1,200 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>Edit Product</h2>
+
+<form method="POST">
+
+    <!-- PRODUCT -->
+    <h3>Product Details</h3>
+
+    <label>Name:</label><br>
+    <input
+        type="text"
+        name="name"
+        value="{{ product.name }}"
+        required
+    >
+    <br><br>
+
+    <label>SKU:</label><br>
+    <input
+        type="text"
+        name="sku"
+        value="{{ product.sku }}"
+        required
+    >
+    <br><br>
+
+    {% if not product.has_size and not product.has_color %}
+
+        <label>Barcode:</label><br>
+
+        <input
+            type="text"
+            name="barcode"
+            value="{{ product.barcode }}"
+        >
+
+        <br><br>
+
+        <label>Quantity:</label><br>
+
+        <input
+            type="number"
+            name="quantity"
+            value="{{ product.quantity or 0 }}"
+        >
+
+        <br><br>
+
+    {% endif %}
+
+    <label>Price:</label><br>
+
+    <input
+        type="number"
+        step="0.01"
+        name="price"
+        value="{{ product.price }}"
+    >
+
+    <br><br>
+
+    <label>Brand:</label><br>
+
+    <select name="brand_id">
+
+        {% for brand in brands %}
+
+        <option
+            value="{{ brand.id }}"
+            {% if brand.id == product.brand_id %}
+                selected
+            {% endif %}
+        >
+            {{ brand.name }}
+        </option>
+
+        {% endfor %}
+
+    </select>
+
+    <br><br>
+
+    <!-- VARIANTS -->
+    {% if variants %}
+
+    <hr>
+
+    <h3>Variants</h3>
+
+    <table border="1" cellpadding="5">
+
+        <tr>
+
+            {% if product.has_size %}
+            <th>Size</th>
+            {% endif %}
+
+            {% if product.has_color %}
+            <th>Color</th>
+            {% endif %}
+
+            <th>Barcode</th>
+
+            <th>Quantity</th>
+
+            <th>Price</th>
+
+        </tr>
+
+        {% for variant in variants %}
+
+        <tr>
+
+            <input
+                type="hidden"
+                name="variant_ids"
+                value="{{ variant.id }}"
+            >
+
+            {% if product.has_size %}
+<td>
+
+    {% if variant.size %}
+
+        {{ variant.size.name }}
+
+    {% else %}
+
+        No Size
+
+    {% endif %}
+
+</td>
+{% endif %}
+
+            {% if product.has_color %}
+            <td>
+                {{ variant.color.name }}
+            </td>
+            {% endif %}
+
+            <td>
+
+                <input
+                    type="text"
+                    name="barcode_{{ variant.id }}"
+                    value="{{ variant.barcode }}"
+                >
+
+            </td>
+
+            <td>
+
+                <input
+                    type="number"
+                    name="qty_{{ variant.id }}"
+                    value="{{ variant.quantity }}"
+                >
+
+            </td>
+
+            <td>
+
+                <input
+                    type="number"
+                    step="0.01"
+                    name="price_{{ variant.id }}"
+                    value="{{ variant.price }}"
+                >
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    {% endif %}
+
+    <br>
+
+    <button type="submit">
+
+        Update Product
+
+    </button>
+
+</form>
+
+<br>
+
+<a href="{{ url_for('tenant.dashboard') }}">
+    ⬅ Back
+</a>
+
+{% endblock %}

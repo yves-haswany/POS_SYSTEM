@@ -1,0 +1,31 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>Colors</h2>
+
+<a href="{{ url_for('colors.create_color') }}">
+    ➕ Create Color
+</a>
+
+<hr>
+
+{% for color in colors %}
+
+<div class="card">
+
+    <h3>{{ color.name }}</h3>
+
+    <div style="
+        width:40px;
+        height:40px;
+        background:#ffffff;
+        border:1px solid #ccc;
+    ">
+    </div>
+
+</div>
+
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,5 @@
+ROLE_ADMIN = "admin"
+ROLE_TENANT = "tenant"
+ROLE_BRANCH_ADMIN = "branch_admin"
+ROLE_BRANCH_MANAGER = "branch_manager"
+ROLE_VENDOR = "vendor"

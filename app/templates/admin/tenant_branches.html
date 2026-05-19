@@ -8,26 +8,29 @@
     <tr>
         <th>ID</th>
         <th>Name</th>
-        <th>Type</th>
+        <th>Brand</th>
         <th>Actions</th>
     </tr>
 
-    {% for branch in branches %}
-    <tr>
-        <td>{{ branch.id }}</td>
-        <td>{{ branch.name }}</td>
-        <td>{{ branch.type }}</td>
-        <td>
-            <form method="POST"
-                  action="{{ url_for('locations.delete_location', location_id=branch.id) }}"
-                  style="display:inline;">
-                <button type="submit"
-                        onclick="return confirm('Delete this branch?')">
-                    🗑 Delete
-                </button>
-            </form>
-        </td>
-    </tr>
+    {% for brand in tenant.brands %}
+        {% for branch in brand.branches %}
+        <tr>
+            <td>{{ branch.id }}</td>
+            <td>{{ branch.name }}</td>
+            <td>{{ brand.name }}</td>
+
+            <td>
+                <form method="POST"
+                      action="{{ url_for('admin.delete_branch', branch_id=branch.id) }}"
+                      style="display:inline;">
+                    <button type="submit"
+                            onclick="return confirm('Delete this branch?')">
+                        🗑 Delete
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
     {% endfor %}
 </table>
 

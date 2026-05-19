@@ -1,0 +1,400 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<style>
+
+.color-preview{
+
+    width:40px;
+
+    height:40px;
+
+    border:1px solid #ccc;
+
+    border-radius:4px;
+
+}
+
+</style>
+
+<h2>🎨 Color Management</h2>
+
+<!-- ========================= -->
+<!-- CREATE COLOR -->
+<!-- ========================= -->
+
+<form method="POST">
+
+    <label>Color Name</label><br>
+
+    <input
+        type="text"
+        name="name"
+        id="colorName"
+        required
+    >
+
+    <br><br>
+
+    <!-- AUTO GENERATED HEX -->
+
+    <label>Generated Hex Code</label><br>
+
+    <input
+        type="text"
+        id="hexPreview"
+        readonly
+        style="
+            background:#f4f4f4;
+            padding:6px;
+        "
+    >
+
+    <br><br>
+
+    <!-- LIVE PREVIEW -->
+
+    <div
+        id="colorBox"
+        style="
+            width:80px;
+            height:40px;
+            border:1px solid #ccc;
+            border-radius:6px;
+            background:#ffffff;
+        "
+    ></div>
+
+    <br>
+
+    <button type="submit">
+
+        💾 Save Color
+
+    </button>
+
+</form>
+
+<hr>
+
+<!-- ========================= -->
+<!-- EXISTING COLORS -->
+<!-- ========================= -->
+
+<h3>📋 Existing Colors</h3>
+
+{% if colors %}
+
+<table border="1" cellpadding="10">
+
+    <tr>
+
+        <th>Name</th>
+
+        <th>Hex Code</th>
+
+        <th>Preview</th>
+
+        <th>Actions</th>
+
+    </tr>
+
+    {% for color in colors %}
+
+    <tr>
+
+        <td>
+
+            {{ color.name }}
+
+        </td>
+
+        <td>
+
+            {{ color.hex_code }}
+
+        </td>
+
+        <td>
+
+            <div
+                style="
+                    display:flex;
+                    align-items:center;
+                    gap:10px;
+                "
+            >
+
+                <div
+                    class="color-preview"
+                    data-color="{{ color.hex_code }}"
+                ></div>
+
+                <span>
+
+                    {{ color.hex_code }}
+
+                </span>
+
+            </div>
+
+        </td>
+
+        <td>
+
+            <a href="{{ url_for('colors.edit_color', id=color.id) }}">
+
+                ✏️ Edit
+
+            </a>
+
+            |
+
+            <form
+                method="POST"
+                action="{{ url_for('colors.delete_color', id=color.id) }}"
+                style="display:inline;"
+            >
+
+                <button
+                    type="submit"
+                    onclick="return confirm('Delete this color?')"
+                >
+
+                    🗑️ Delete
+
+                </button>
+
+            </form>
+
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+{% else %}
+
+<p>No colors created yet.</p>
+
+{% endif %}
+
+<hr>
+
+<!-- ========================= -->
+<!-- NAVIGATION -->
+<!-- ========================= -->
+
+<a href="{{ url_for('tenant.dashboard') }}">
+
+⬅ Back to Dashboard
+
+</a>
+
+<!-- ========================= -->
+<!-- JAVASCRIPT -->
+<!-- ========================= -->
+
+<script>
+
+const colorInput =
+
+document.getElementById(
+"colorName"
+);
+
+const hexPreview =
+
+document.getElementById(
+"hexPreview"
+);
+
+const colorBox =
+
+document.getElementById(
+"colorBox"
+);
+
+const predefinedColors = {
+
+red:"#FF0000",
+
+blue:"#0000FF",
+
+green:"#008000",
+
+yellow:"#FFFF00",
+
+black:"#000000",
+
+white:"#FFFFFF",
+
+gray:"#808080",
+
+grey:"#808080",
+
+orange:"#FFA500",
+
+purple:"#800080",
+
+pink:"#FFC0CB",
+
+brown:"#A52A2A",
+
+cyan:"#00FFFF",
+
+magenta:"#FF00FF",
+
+lime:"#00FF00",
+
+navy:"#000080",
+
+teal:"#008080",
+
+olive:"#808000",
+
+maroon:"#800000",
+
+silver:"#C0C0C0",
+
+gold:"#FFD700",
+
+beige:"#F5F5DC",
+
+ivory:"#FFFFF0",
+
+coral:"#FF7F50",
+
+turquoise:"#40E0D0"
+
+};
+
+function getColorHex(name){
+
+const key =
+
+name.trim()
+.toLowerCase();
+
+if(
+predefinedColors[key]
+){
+
+return predefinedColors[
+key
+];
+
+}
+
+let hash = 0;
+
+for(
+
+let i=0;
+
+i<key.length;
+
+i++
+
+){
+
+hash =
+
+key.charCodeAt(i)
+
++
+
+(
+
+(hash<<5)
+
+-
+
+hash
+
+);
+
+}
+
+let color="#";
+
+for(
+
+let i=0;
+
+i<3;
+
+i++
+
+){
+
+const value =
+
+(hash>>(i*8))
+
+&255;
+
+color +=
+
+(
+
+"00"
+
++
+
+value.toString(16)
+
+)
+
+.slice(-2);
+
+}
+
+return color.toUpperCase();
+
+}
+
+colorInput.addEventListener(
+
+"input",
+
+function(){
+
+const color =
+
+getColorHex(
+this.value
+);
+
+hexPreview.value =
+
+color;
+
+colorBox.style
+.backgroundColor =
+
+color;
+
+}
+
+);
+
+document
+.querySelectorAll(
+".color-preview"
+)
+.forEach(function(box){
+
+box.style
+.backgroundColor =
+
+box.dataset.color;
+
+});
+
+</script>
+
+{% endblock %}

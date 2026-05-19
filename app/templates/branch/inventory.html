@@ -1,0 +1,29 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>📦 Branch Inventory</h2>
+
+{% if inventory_items %}
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>Product</th>
+        <th>Stock</th>
+        <th>Warehouse</th>
+    </tr>
+
+    {% for item in inventory_items %}
+    <tr>
+        <td>{{ item.product.name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.warehouse.name }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% else %}
+<p>No inventory found.</p>
+{% endif %}
+
+{% endblock %}

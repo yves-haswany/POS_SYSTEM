@@ -1,0 +1,138 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>Transfers</h2>
+
+<a href="{{ url_for('transfers.create_transfer') }}">
+    ➕ Create Transfer
+</a>
+
+<hr>
+
+{% if transfers %}
+
+<table border="1" cellpadding="8">
+
+    <tr>
+        <th>ID</th>
+        <th>Source</th>
+        <th>Destination</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for t in transfers %}
+    <tr>
+
+        <td>{{ t.id }}</td>
+
+        <td>
+            {{ t.source_warehouse.name if t.source_warehouse else t.source_warehouse_id }}
+        </td>
+
+        <td>
+            {{ t.destination_warehouse.name if t.destination_warehouse else t.destination_warehouse_id }}
+        </td>
+
+        <!-- ===================== -->
+        <!-- STATUS -->
+        <!-- ===================== -->
+        <td>
+            {% if t.status == "draft" %}
+                📝 Draft
+            {% elif t.status == "in_transit" %}
+                🚚 In Transit (Sent to destination)
+            {% elif t.status == "received" %}
+                ✅ Received
+            {% elif t.status == "rejected" %}
+                ❌ Rejected
+            {% else %}
+                {{ t.status }}
+            {% endif %}
+        </td>
+
+        <!-- ===================== -->
+        <!-- ACTIONS -->
+        <!-- ===================== -->
+        <td>
+
+            <!-- ===================== -->
+            <!-- DRAFT (SOURCE SIDE ONLY) -->
+            <!-- ===================== -->
+            {% if t.status == "draft" %}
+
+                <!-- SEND TO TRANSIT -->
+                <a href="{{ url_for('transfers.send_transfer', id=t.id) }}">
+                    📦 Send
+                </a>
+
+                |
+
+                <!-- EDIT -->
+                <a href="{{ url_for('transfers.edit_transfer', id=t.id) }}">
+                    ✏️ Edit
+                </a>
+
+                |
+
+                <!-- DELETE -->
+                <form method="POST"
+                      action="{{ url_for('transfers.delete_transfer', id=t.id) }}"
+                      style="display:inline;"
+                      onsubmit="return confirm('Delete this transfer?');">
+
+                    <button type="submit" style="color:red;">
+                        🗑 Delete
+                    </button>
+                </form>
+
+            {% endif %}
+
+            <!-- ===================== -->
+            <!-- IN TRANSIT -->
+            <!-- ===================== -->
+            {% if t.status == "in_transit" %}
+
+                🚚 Sent — waiting at destination
+
+            {% endif %}
+
+            <!-- ===================== -->
+            <!-- RECEIVED -->
+            <!-- ===================== -->
+            {% if t.status == "received" %}
+
+                ✅ Completed
+
+            {% endif %}
+
+            <!-- ===================== -->
+            <!-- REJECTED -->
+            <!-- ===================== -->
+            {% if t.status == "rejected" %}
+
+                ❌ Rejected by destination
+
+            {% endif %}
+
+        </td>
+
+    </tr>
+    {% endfor %}
+
+</table>
+
+{% else %}
+
+<p>No transfers yet.</p>
+
+{% endif %}
+
+<hr>
+
+<a href="{{ url_for('tenant.dashboard') }}">
+    ⬅ Back to Dashboard
+</a>
+
+{% endblock %}

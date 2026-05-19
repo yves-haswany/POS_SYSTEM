@@ -4,7 +4,10 @@ from app.core.models.base import BaseModel
 class Inventory(BaseModel):
     __tablename__ = "inventory"
 
-    product_id = db.Column(db.Integer, db.ForeignKey("products.id"))
-    location_id = db.Column(db.Integer, db.ForeignKey("locations.id"))
+    product_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False)
+    warehouse_id = db.Column(db.Integer, db.ForeignKey("warehouses.id"), nullable=False)
 
     quantity = db.Column(db.Float, default=0)
+
+    product = db.relationship("Product")
+    warehouse = db.relationship("Warehouse", back_populates="inventory")

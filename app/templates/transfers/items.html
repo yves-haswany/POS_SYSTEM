@@ -1,0 +1,41 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>Add Items to Transfer #{{ transfer.id }}</h2>
+
+<p>Status: {{ transfer.status }}</p>
+
+<hr>
+
+<h3>Available Products</h3>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>Product</th>
+        <th>Stock</th>
+        <th>Add</th>
+    </tr>
+
+    {% for item in inventory %}
+    <tr>
+        <td>{{ item.product.name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>
+            <form method="POST">
+                <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                <input type="number" name="quantity" min="1" max="{{ item.quantity }}" required>
+                <button type="submit">➕</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<hr>
+
+<a href="{{ url_for('transfers.approve_transfer', id=transfer.id) }}">
+    ✅ Approve Transfer
+</a>
+
+{% endblock %}

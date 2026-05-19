@@ -1,6 +1,6 @@
 from app.extensions import db
 from app.modules.orders.models import Order
-from app.modules.stock_movements.service import create_movement
+from app.modules.stock_movements.service import StockMovementService
 
 
 def create_order(tenant_id, location_id, items):
@@ -16,7 +16,7 @@ def create_order(tenant_id, location_id, items):
 
     # Reduce stock
     for item in items:
-        create_movement(
+        StockMovementService.create_stock_movement(
             product_id=item["product_id"],
             from_loc=location_id,
             to_loc=None,

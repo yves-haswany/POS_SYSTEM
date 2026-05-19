@@ -2,16 +2,458 @@
 
 {% block content %}
 
+<style>
+
+.form-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        140px 1fr
+        140px 1fr;
+
+    gap:10px 16px;
+
+    max-width:1000px;
+
+    align-items:center;
+
+}
+
+.form-grid label{
+
+    font-weight:600;
+
+}
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea{
+
+    width:100%;
+
+    padding:6px 8px;
+
+    box-sizing:border-box;
+
+}
+
+.section-title{
+
+    margin-top:18px;
+
+    margin-bottom:10px;
+
+    border-bottom:1px solid #ddd;
+
+    padding-bottom:5px;
+
+}
+
+.full-row{
+
+    grid-column:1 / span 4;
+
+}
+
+.checkbox-inline{
+
+    display:flex;
+
+    gap:15px;
+
+    align-items:center;
+
+}
+
+.checkbox-inline label{
+
+    font-weight:normal;
+
+}
+
+.checkbox-inline input{
+
+    width:auto;
+
+}
+
+.info-box{
+
+    margin-top:10px;
+
+    color:gray;
+
+    display:none;
+
+}
+
+button{
+
+    padding:8px 18px;
+
+}
+
+</style>
+
 <h2>Add Product</h2>
 
 <form method="POST">
-    <label>Name:</label><br>
-    <input type="text" name="name" required><br><br>
 
-    <label>Price:</label><br>
-    <input type="number" step="0.01" name="price" required><br><br>
+<h3 class="section-title">
+Core Identity
+</h3>
 
-    <button type="submit">Save</button>
+<div class="form-grid">
+
+<label>Name</label>
+<input type="text" name="name" required>
+
+<label>SKU</label>
+<input type="text" name="sku" required>
+
+<label>Season</label>
+
+<select name="season">
+
+<option value="">
+-- Select --
+</option>
+
+<option value="summer">
+Summer
+</option>
+
+<option value="spring">
+Spring
+</option>
+
+<option value="autumn">
+Autumn
+</option>
+
+<option value="winter">
+Winter
+</option>
+
+</select>
+
+<label>Year</label>
+
+<input
+    type="number"
+    name="year"
+>
+
+</div>
+
+
+<h3 class="section-title">
+Classification
+</h3>
+
+<div class="form-grid">
+
+<label>Category</label>
+
+<select name="category_id">
+
+<option value="">
+-- Select --
+</option>
+
+{% for category in categories %}
+
+<option value="{{ category.id }}">
+
+{{ category.name }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+<label>Segment</label>
+
+<input
+    type="text"
+    name="segment"
+>
+
+<label>Line</label>
+
+<input
+    type="text"
+    name="line"
+>
+
+<label>Type</label>
+
+<input
+    type="text"
+    name="type"
+>
+
+<label>Composition</label>
+
+<textarea
+    class="full-row"
+    rows="3"
+    name="composition"
+></textarea>
+
+</div>
+
+
+<h3 class="section-title">
+Pricing
+</h3>
+
+<div class="form-grid">
+
+<label>Price</label>
+
+<input
+    type="number"
+    step="0.01"
+    name="price"
+>
+
+<label>Purchase Currency</label>
+
+<input
+    type="text"
+    name="purchase_currency"
+>
+
+<label>Cost</label>
+
+<input
+    type="number"
+    step="0.01"
+    name="cost"
+>
+
+<label>Landing Cost</label>
+
+<input
+    type="number"
+    step="0.01"
+    name="landing_cost"
+>
+
+<label>Average Cost</label>
+
+<input
+    type="number"
+    step="0.01"
+    name="average_cost"
+>
+
+<label>VAT Taxable</label>
+
+<input
+    type="checkbox"
+    name="vat_taxable"
+    checked
+>
+
+</div>
+
+
+<h3 class="section-title">
+Inventory
+</h3>
+
+<div class="form-grid">
+
+<label>Initial Quantity</label>
+
+<input
+    type="number"
+    name="quantity"
+    id="quantityField"
+    value="0"
+>
+
+<label>Inventory Item</label>
+
+<input
+    type="checkbox"
+    name="is_inventory_item"
+    checked
+>
+
+<label>Variants</label>
+
+<div class="checkbox-inline">
+
+<label>
+
+<input
+    type="checkbox"
+    name="has_size"
+    id="has_size"
+>
+
+Sizes
+
+</label>
+
+<label>
+
+<input
+    type="checkbox"
+    name="has_color"
+    id="has_color"
+>
+
+Colors
+
+</label>
+
+</div>
+
+<label>Size Scale</label>
+
+<select name="size_scale_id">
+
+<option value="">
+-- Select Scale --
+</option>
+
+{% for scale in size_scales %}
+
+<option value="{{ scale.id }}">
+
+{{ scale.name }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+
+<h3 class="section-title">
+Ownership
+</h3>
+
+<div class="form-grid">
+
+<label>Brand</label>
+
+<select
+    name="brand_id"
+    required
+>
+
+{% for brand in brands %}
+
+<option value="{{ brand.id }}">
+
+{{ brand.name }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+
+<div
+    id="variantInfo"
+    class="info-box"
+>
+
+Variant product detected.
+
+Product will be saved as draft and redirected to matrix.
+
+</div>
+
+<br>
+
+<button type="submit">
+
+💾 Save Product
+
+</button>
+
 </form>
+<a href="{{ url_for('tenant.dashboard') }}">
+    ⬅ Back to Dashboard
+</a>
+<script>
+
+const hasSize =
+document.getElementById(
+"has_size"
+);
+
+const hasColor =
+document.getElementById(
+"has_color"
+);
+
+const quantityField =
+document.getElementById(
+"quantityField"
+);
+
+const variantInfo =
+document.getElementById(
+"variantInfo"
+);
+
+function updateVariantUI(){
+
+const variants =
+
+hasSize.checked ||
+
+hasColor.checked;
+
+if(variants){
+
+quantityField.disabled =
+true;
+
+quantityField.value = 0;
+
+variantInfo.style.display =
+"block";
+
+}
+else{
+
+quantityField.disabled =
+false;
+
+variantInfo.style.display =
+"none";
+
+}
+
+}
+
+hasSize.addEventListener(
+"change",
+updateVariantUI
+);
+
+hasColor.addEventListener(
+"change",
+updateVariantUI
+);
+
+updateVariantUI();
+
+</script>
 
 {% endblock %}

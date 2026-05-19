@@ -1,0 +1,25 @@
+<h2>Edit Branch</h2>
+
+<form method="POST">
+
+    <input name="name" value="{{ location.name }}"><br>
+
+    <select name="type">
+        <option value="store" {% if location.type == "store" %}selected{% endif %}>Store</option>
+        <option value="warehouse" {% if location.type == "warehouse" %}selected{% endif %}>Warehouse</option>
+    </select><br><br>
+
+    <h3>Login Credentials</h3>
+
+    {% if branch_user %}
+        <p>Current Username: <b>{{ branch_user.username }}</b></p>
+    {% else %}
+        <p style="color:red;">No login created yet</p>
+    {% endif %}
+
+    <input name="username" placeholder="New / Update Username"><br>
+    <input name="password" type="password" placeholder="New Password"><br><br>
+
+    <button type="submit">Save</button>
+
+</form>

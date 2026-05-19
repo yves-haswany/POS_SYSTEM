@@ -4,33 +4,52 @@
 
 <h2>Create Tenant</h2>
 
-<!-- ✅ FLASH MESSAGES -->
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <div style="color: red; margin-bottom: 15px;">
-      {% for msg in messages %}
-        <p>{{ msg }}</p>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
-
 <form method="POST">
 
+    <!-- TENANT -->
     <h3>Tenant Info</h3>
-    <input name="name" placeholder="Tenant Name"><br>
-    <input name="username" placeholder="Username"><br>
-    <input name="password" type="password" placeholder="Password"><br>
+    <input name="name" placeholder="Tenant Name" required><br>
+    <input name="username" placeholder="Username" required><br>
+    <input name="password" type="password" placeholder="Password" required><br>
 
-    <h3>Branches</h3>
+    <!-- COMPANIES -->
+    <h3>Companies</h3>
+
+    <div id="companies">
+        <div>
+            <input name="company_name[]" placeholder="Company Name" required>
+            <button type="button" onclick="removeCompany(this)">❌</button>
+        </div>
+    </div>
+
+    <button type="button" onclick="addCompany()">➕ Add Company</button>
+
+    <!-- BRANDS -->
+    <h3>Brands</h3>
+
+    <div id="brands">
+        <div>
+            <input name="brand_name[]" placeholder="Brand Name" required>
+            <select name="brand_company_index[]"></select>
+            <button type="button" onclick="removeBrand(this)">❌</button>
+        </div>
+    </div>
+
+    <button type="button" onclick="addBrand()">➕ Add Brand</button>
+
+    <!-- BRANCHES -->
+    <h3>Branches (POS)</h3>
+
     <div id="branches">
         <div>
-            <input name="branch_name[]" placeholder="Branch Name">
-            <select name="branch_type[]">
-                <option value="">Select Type</option>
-                <option value="store">Store</option>
-                <option value="warehouse">Warehouse</option>
-            </select>
+            <input name="branch_name[]" placeholder="Branch Name" required>
+
+            <select name="branch_brand_index[]"></select>
+
+            <!-- 🔥 NEW: SYSTEM ADMIN -->
+            <input name="branch_admin_username[]" placeholder="Admin Username" required>
+            <input name="branch_admin_password[]" type="password" placeholder="Admin Password" required>
+
             <button type="button" onclick="removeBranch(this)">❌</button>
         </div>
     </div>
@@ -42,38 +61,127 @@
 
 </form>
 
-<a href="{{ url_for('admin.dashboard') }}">⬅ Back to Dashboard</a>
+<a href="{{ url_for('admin.dashboard') }}">⬅ Back</a>
 
 <script>
+
+// ------------------ COMPANIES ------------------
+function addCompany() {
+    const div = document.getElementById("companies");
+
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = `
+        <input name="company_name[]" placeholder="Company Name" required>
+        <button type="button" onclick="removeCompany(this)">❌</button>
+    `;
+
+    div.appendChild(wrapper);
+    updateBrandCompanyOptions();
+}
+
+function removeCompany(btn) {
+    const container = document.getElementById("companies");
+
+    if (container.children.length > 1) {
+        btn.parentElement.remove();
+        updateBrandCompanyOptions();
+    } else {
+        alert("At least one company is required");
+    }
+}
+
+// ------------------ BRANDS ------------------
+function addBrand() {
+    const div = document.getElementById("brands");
+
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = `
+        <input name="brand_name[]" placeholder="Brand Name" required>
+        <select name="brand_company_index[]"></select>
+        <button type="button" onclick="removeBrand(this)">❌</button>
+    `;
+
+    div.appendChild(wrapper);
+
+    updateBrandCompanyOptions();
+    updateBranchBrandOptions();
+}
+
+function removeBrand(btn) {
+    const container = document.getElementById("brands");
+
+    if (container.children.length > 1) {
+        btn.parentElement.remove();
+        updateBranchBrandOptions();
+    } else {
+        alert("At least one brand is required");
+    }
+}
+
+// ------------------ BRANCHES ------------------
 function addBranch() {
     const div = document.getElementById("branches");
 
     const wrapper = document.createElement("div");
-
     wrapper.innerHTML = `
-        <input name="branch_name[]" placeholder="Branch Name">
-        <select name="branch_type[]">
-            <option value="">Select Type</option>
-            <option value="store">Store</option>
-            <option value="warehouse">Warehouse</option>
-        </select>
+        <input name="branch_name[]" placeholder="Branch Name" required>
+        <select name="branch_brand_index[]"></select>
+        <input name="branch_admin_username[]" placeholder="Admin Username" required>
+        <input name="branch_admin_password[]" type="password" placeholder="Admin Password" required>
         <button type="button" onclick="removeBranch(this)">❌</button>
     `;
 
     div.appendChild(wrapper);
+    updateBranchBrandOptions();
 }
 
-function removeBranch(button) {
-    const row = button.parentElement;
-
-    // prevent removing the last branch (optional safety)
+function removeBranch(btn) {
     const container = document.getElementById("branches");
+
     if (container.children.length > 1) {
-        row.remove();
+        btn.parentElement.remove();
     } else {
         alert("At least one branch is required");
     }
 }
+
+// ------------------ UPDATE SELECTS ------------------
+function updateBrandCompanyOptions() {
+    const companies = document.querySelectorAll('#companies input');
+    const selects = document.querySelectorAll('#brands select');
+
+    selects.forEach(select => {
+        select.innerHTML = "";
+
+        companies.forEach((c, i) => {
+            const option = document.createElement("option");
+            option.value = i;
+            option.textContent = c.value || `Company #${i+1}`;
+            select.appendChild(option);
+        });
+    });
+}
+
+function updateBranchBrandOptions() {
+    const brands = document.querySelectorAll('#brands input');
+    const selects = document.querySelectorAll('#branches select');
+
+    selects.forEach(select => {
+        select.innerHTML = "";
+
+        brands.forEach((b, i) => {
+            const option = document.createElement("option");
+            option.value = i;
+            option.textContent = b.value || `Brand #${i+1}`;
+            select.appendChild(option);
+        });
+    });
+}
+
+// INIT
+updateBrandCompanyOptions();
+updateBranchBrandOptions();
+
 </script>
 
 {% endblock %}

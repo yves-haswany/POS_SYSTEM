@@ -1,0 +1,38 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>Receive Transfer #{{ transfer.id }}</h2>
+
+<form method="POST">
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>Product</th>
+        <th>Sent</th>
+        <th>Received</th>
+    </tr>
+
+    {% for item in items %}
+    <tr>
+        <td>{{ item.product_id }}</td>
+        <td>{{ item.quantity_sent }}</td>
+
+        <td>
+            <input type="number"
+                   name="received_{{ item.id }}"
+                   value="{{ item.quantity_sent }}"
+                   min="0"
+                   max="{{ item.quantity_sent }}">
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<br>
+
+<button type="submit">✅ Confirm Receipt</button>
+
+</form>
+
+{% endblock %}

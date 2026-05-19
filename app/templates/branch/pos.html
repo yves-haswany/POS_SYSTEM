@@ -1,0 +1,141 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+
+<h2>🛒 Branch POS Dashboard</h2>
+
+<p>
+    Welcome
+    <b>{{ current_user.username }}</b>
+    ({{ current_user.role }})
+</p>
+
+<hr>
+
+<div style="
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+">
+
+    <!-- ================================= -->
+    <!-- 🧾 INVOICING -->
+    <!-- ================================= -->
+    <div class="card">
+
+        <h3>🧾 Invoicing</h3>
+
+        <a href="{{ url_for('branch.dashboard') }}">
+            ➕ Open POS
+        </a>
+
+        <br><br>
+
+        <a href="{{ url_for('branch.list_orders') }}">
+            📋 View Invoices
+        </a>
+
+        {% if current_user.role in ['branch_admin', 'branch_manager'] %}
+
+        <br><br>
+
+        <a href="{{ url_for('branch.manage_discounts') }}">
+            💸 Manage Discounts
+        </a>
+
+        {% endif %}
+
+    </div>
+
+    <!-- ================================= -->
+    <!-- 📦 STOCK MOVEMENT -->
+    <!-- ================================= -->
+    <div class="card">
+
+        <h3>📦 Stock Movement</h3>
+
+        <a href="{{ url_for('branch.create_transfer') }}">
+            🚚 Create Transfer
+        </a>
+
+        <br><br>
+
+        <a href="{{ url_for('transfers.view_transit') }}">
+            📥 Receive Transfers
+        </a>
+
+        <br><br>
+
+        <a href="{{ url_for('transfers.list_transfers') }}">
+            📋 Transfer History
+        </a>
+
+    </div>
+
+    <!-- ================================= -->
+    <!-- 👤 USER MANAGEMENT -->
+    <!-- ================================= -->
+    {% if current_user.role == 'branch_admin' %}
+
+    <div class="card">
+
+        <h3>👤 User Management</h3>
+
+        <a href="{{ url_for('branch.create_user') }}">
+            ➕ Create User
+        </a>
+
+        <br><br>
+
+        <a href="{{ url_for('branch.list_users') }}">
+            📋 View Users
+        </a>
+
+    </div>
+
+    {% endif %}
+
+    <!-- ================================= -->
+    <!-- 📦 INVENTORY -->
+    <!-- ================================= -->
+    <div class="card">
+
+        <h3>📦 Inventory</h3>
+
+        <a href="{{ url_for('branch.inventory') }}">
+            📋 View Inventory
+        </a>
+
+    </div>
+
+    <!-- ================================= -->
+    <!-- 🔔 INCOMING TRANSFERS -->
+    <!-- ================================= -->
+    {% if incoming_transfers %}
+
+    <div class="card">
+
+        <h3>🔔 Incoming Transfers</h3>
+
+        <p>
+            {{ incoming_transfers|length }}
+            transfer(s) awaiting approval
+        </p>
+
+        <a href="{{ url_for('transfers.view_transit') }}">
+            Open Transfers
+        </a>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+<hr>
+
+<a href="{{ url_for('auth.logout') }}">
+    🚪 Logout
+</a>
+
+{% endblock %}
