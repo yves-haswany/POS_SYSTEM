@@ -92,6 +92,9 @@ def create_app():
     from app.modules.product_variants.routes import variants_bp
     from app.modules.colors.routes  import colors_bp
     from app.modules.pricing.routes import pricing_bp
+    from app.modules.segment.routes import segments_bp
+    from app.modules.line.routes import lines_bp
+    from app.modules.style.routes import styles_bp
 
     app.register_blueprint(notifications_bp, url_prefix="/notifications")
     app.register_blueprint(auth_bp, url_prefix="/auth")
@@ -109,6 +112,9 @@ def create_app():
     app.register_blueprint(variants_bp)
     app.register_blueprint(colors_bp)
     app.register_blueprint(pricing_bp)
+    app.register_blueprint(segments_bp)
+    app.register_blueprint(lines_bp)
+    app.register_blueprint(styles_bp)
     # -----------------------
     # ROOT ROUTE
     # -----------------------

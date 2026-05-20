@@ -1,4 +1,4 @@
-from app.modules.products.models import Line
+from app.modules.line.models import Line
 from flask import Blueprint, render_template, request, redirect, url_for
 from flask_login import login_required, current_user
 from  app import db
@@ -25,13 +25,13 @@ def create_line():
         db.session.add(line)
         db.session.commit()
 
-        return redirect(url_for("lines.create_line"))
+        return redirect(url_for("line.create_line"))
 
     lines = Line.query.filter_by(
         tenant_id=current_user.tenant_id
     ).all()
 
     return render_template(
-        "lines/create.html",
+        "line/create.html",
         lines=lines
     )

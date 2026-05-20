@@ -1,7 +1,7 @@
 from flask import Blueprint, request, render_template, redirect, url_for
 from flask_login import login_required, current_user
 from app.extensions import db
-from app.modules.products.models import Segment
+from app.modules.segment.models import Segment
 
 segments_bp = Blueprint("segments", __name__, url_prefix="/segments")
 
@@ -25,13 +25,13 @@ def create_segment():
         db.session.add(segment)
         db.session.commit()
 
-        return redirect(url_for("segments.create_segment"))
+        return redirect(url_for("segment.create_segment"))
 
     segments = Segment.query.filter_by(
         tenant_id=current_user.tenant_id
     ).all()
 
     return render_template(
-        "segments/create.html",
+        "segment/create.html",
         segments=segments
     )
