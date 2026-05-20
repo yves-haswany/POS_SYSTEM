@@ -1,0 +1,125 @@
+<h2>
+
+    Price List Details
+
+</h2>
+
+<p>
+
+    <strong>Name:</strong>
+
+    {{ price_list.name }}
+
+</p>
+
+<p>
+
+    <strong>Currency:</strong>
+
+    {{ price_list.currency }}
+
+</p>
+
+<hr>
+
+<h3>
+
+    Items
+
+</h3>
+
+<table
+    border="1"
+    cellpadding="8"
+>
+
+    <thead>
+
+        <tr>
+
+            <th>
+                Product
+            </th>
+
+            <th>
+                Variant
+            </th>
+
+            <th>
+                Price
+            </th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+    {% for item in price_list.items %}
+
+    <tr>
+
+        <td>
+
+            {{ item.product_variant.product.name }}
+
+        </td>
+
+        <td>
+
+            {% if item.product_variant.size %}
+
+                Size:
+                {{ item.product_variant.size.label }}
+
+            {% endif %}
+
+            {% if item.product_variant.color %}
+
+                |
+
+                Color:
+                {{ item.product_variant.color.name }}
+
+            {% endif %}
+
+        </td>
+
+        <td>
+
+            {{ item.price }}
+
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+    </tbody>
+
+</table>
+
+<br>
+
+<a
+    href="{{ url_for(
+        'pricing.edit_price_list',
+        price_list_id=price_list.id
+    ) }}"
+>
+
+    Edit
+
+</a>
+
+|
+
+<a
+    href="{{ url_for(
+        'pricing.create_price_list'
+    ) }}"
+>
+
+    Back
+
+</a>

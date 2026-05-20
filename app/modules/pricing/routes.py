@@ -209,7 +209,10 @@ def view_price_list(price_list_id):
 # =========================================================
 # EDIT PRICE LIST
 # =========================================================
-@pricing_bp.route("/price-lists/<int:price_list_id>/edit", methods=["GET", "POST"])
+@pricing_bp.route(
+    "/price-lists/<int:price_list_id>/edit",
+    methods=["GET", "POST"]
+)
 @login_required
 def edit_price_list(price_list_id):
 
@@ -217,6 +220,10 @@ def edit_price_list(price_list_id):
         id=price_list_id,
         tenant_id=current_user.tenant_id
     ).first_or_404()
+
+    # =====================================
+    # GET
+    # =====================================
 
     if request.method == "GET":
 
@@ -230,33 +237,128 @@ def edit_price_list(price_list_id):
             products=products
         )
 
-    # update basic info
-    price_list.name = request.form.get("name")
-    price_list.currency = request.form.get("currency")
+    # =====================================
+    # UPDATE BASIC INFO
+    # =====================================
 
-    # remove old items
-    PriceListItem.query.filter_by(
-        price_list_id=price_list.id
-    ).delete()
+    name = request.form.get(
+        "name",
+        ""
+    ).strip()
 
-    # re-insert updated items
-    for key, value in request.form.items():
+    currency = request.form.get(
+        "currency",
+        ""
+    ).strip()
 
-        if key.startswith("price_") and value:
+    if not name or not currency:
 
-            variant_id = int(key.replace("price_", ""))
+        flash(
+            "Name and currency required",
+            "error"
+        )
 
-            db.session.add(PriceListItem(
-                price_list_id=price_list.id,
-                product_variant_id=variant_id,
-                price=float(value)
-            ))
+        return redirect(
+            url_for(
+                "pricing.edit_price_list",
+                price_list_id=price_list.id
+            )
+        )
 
-    db.session.commit()
+    price_list.name = name
+    price_list.currency = currency
 
-    flash("Price list updated", "success")
+    try:
 
-    return redirect(url_for("pricing.view_price_list", price_list_id=price_list.id))
+        # remove existing items
+
+        PriceListItem.query.filter_by(
+            price_list_id=price_list.id
+        ).delete()
+
+        added = 0
+
+        # rebuild list
+
+        for key, value in request.form.items():
+
+            if not key.startswith(
+                "price_"
+            ):
+                continue
+
+            if not value:
+                continue
+
+            variant_id = int(
+                key.replace(
+                    "price_",
+                    ""
+                )
+            )
+
+            variant = ProductVariant.query.get(
+                variant_id
+            )
+
+            if not variant:
+                continue
+
+            # tenant protection
+
+            if (
+                variant.product.tenant_id
+                != current_user.tenant_id
+            ):
+                continue
+
+            db.session.add(
+                PriceListItem(
+
+                    price_list_id=
+                        price_list.id,
+
+                    product_variant_id=
+                        variant_id,
+
+                    price=float(
+                        value
+                    )
+
+                )
+            )
+
+            added += 1
+
+        db.session.commit()
+
+        flash(
+            f"Price list updated ({added} items)",
+            "success"
+        )
+
+    except Exception as e:
+
+        db.session.rollback()
+
+        flash(
+            str(e),
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "pricing.edit_price_list",
+                price_list_id=price_list.id
+            )
+        )
+
+    return redirect(
+        url_for(
+            "pricing.view_price_list",
+            price_list_id=price_list.id
+        )
+    )
 
 
 # =========================================================

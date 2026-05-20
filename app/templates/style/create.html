@@ -1,0 +1,22 @@
+<h2>Styles</h2>
+
+<form method="POST">
+    <input type="text" name="name" placeholder="New style" required>
+    <button type="submit">Add</button>
+</form>
+
+<hr>
+
+<ul>
+{% for style in styles %}
+    <li>
+        {{ style.name }}
+
+        <form method="POST"
+              action="{{ url_for('catalog.delete_style', id=style.id) }}"
+              style="display:inline;">
+            <button type="submit">Delete</button>
+        </form>
+    </li>
+{% endfor %}
+</ul>

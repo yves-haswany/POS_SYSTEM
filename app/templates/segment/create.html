@@ -1,0 +1,22 @@
+<h2>Segments</h2>
+
+<form method="POST">
+    <input type="text" name="name" placeholder="New segment" required>
+    <button type="submit">Add</button>
+</form>
+
+<hr>
+
+<ul>
+{% for segment in segments %}
+    <li>
+        {{ segment.name }}
+
+        <form method="POST"
+              action="{{ url_for('catalog.delete_segment', id=segment.id) }}"
+              style="display:inline;">
+            <button type="submit">Delete</button>
+        </form>
+    </li>
+{% endfor %}
+</ul>

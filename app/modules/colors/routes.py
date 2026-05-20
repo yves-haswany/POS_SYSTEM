@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from app.extensions import db
 from app.modules.colors.models import Color
 import hashlib
+import pandas as pd
 
 colors_bp = Blueprint("colors", __name__, url_prefix="/colors")
 
@@ -83,16 +84,57 @@ def list_colors():
 @login_required
 def create_color():
 
-    if request.method == "POST":
+    if request.method == "GET":
 
-        name = request.form.get("name")
+        colors = Color.query.filter_by(
+            tenant_id=current_user.tenant_id
+        ).all()
+
+        return render_template(
+            "colors/create.html",
+            colors=colors
+        )
+
+    name = request.form.get("name")
+    file = request.files.get("file")
+
+    created_colors = []
+
+    # =========================
+    # EXCEL IMPORT MODE
+    # =========================
+    if file and file.filename.endswith(".xlsx"):
+
+        df = pd.read_excel(file)
+
+        if "name" not in df.columns:
+            return "Excel must contain 'name' column", 400
+
+        for _, row in df.iterrows():
+
+            color_name = str(row["name"]).strip()
+
+            if not color_name:
+                continue
+
+            hex_code = name_to_hex(color_name)
+
+            color = Color(
+                name=color_name,
+                hex_code=hex_code,
+                tenant_id=current_user.tenant_id
+            )
+
+            db.session.add(color)
+            created_colors.append(color_name)
+
+    # =========================
+    # MANUAL MODE
+    # =========================
+    else:
 
         if not name:
-            flash("Name is required", "danger")
-
-            return redirect(
-                url_for("colors.create_color")
-            )
+            return "Name required", 400
 
         hex_code = name_to_hex(name)
 
@@ -103,27 +145,10 @@ def create_color():
         )
 
         db.session.add(color)
-        db.session.commit()
 
-        flash(
-            "Color created successfully",
-            "success"
-        )
+    db.session.commit()
 
-        # RELOAD SAME PAGE
-        return redirect(
-            url_for("colors.create_color")
-        )
-
-    # LOAD COLORS FOR TEMPLATE
-    colors = Color.query.filter_by(
-        tenant_id=current_user.tenant_id
-    ).all()
-
-    return render_template(
-        "colors/create.html",
-        colors=colors
-    )
+    return redirect(url_for("colors.create_color"))
 
 
 # =====================================================

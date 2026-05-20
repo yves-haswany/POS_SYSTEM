@@ -175,25 +175,28 @@ Classification
 </select>
 
 <label>Segment</label>
-
-<input
-    type="text"
-    name="segment"
->
+<select name="segment_id">
+    <option value="">-- Select --</option>
+    {% for s in segments %}
+        <option value="{{ s.id }}">{{ s.name }}</option>
+    {% endfor %}
+</select>
 
 <label>Line</label>
+<select name="line_id">
+    <option value="">-- Select --</option>
+    {% for l in lines %}
+        <option value="{{ l.id }}">{{ l.name }}</option>
+    {% endfor %}
+</select>
 
-<input
-    type="text"
-    name="line"
->
-
-<label>Type</label>
-
-<input
-    type="text"
-    name="type"
->
+<label>Style</label>
+<select name="style_id">
+    <option value="">-- Select --</option>
+    {% for st in styles %}
+        <option value="{{ st.id }}">{{ st.name }}</option>
+    {% endfor %}
+</select>
 
 <label>Composition</label>
 
@@ -384,6 +387,22 @@ Product will be saved as draft and redirected to matrix.
 💾 Save Product
 
 </button>
+<button type="submit">
+
+⬆ Upload Excel
+
+</button>
+
+<a
+    href="{{ url_for(
+        'products.import_products_excel'
+    ) }}"
+    style="margin-left:10px;"
+>
+
+📄 Download Template
+
+</a>
 
 </form>
 <a href="{{ url_for('tenant.dashboard') }}">

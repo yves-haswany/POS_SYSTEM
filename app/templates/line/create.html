@@ -1,0 +1,22 @@
+<h2>Lines</h2>
+
+<form method="POST">
+    <input type="text" name="name" placeholder="New line" required>
+    <button type="submit">Add</button>
+</form>
+
+<hr>
+
+<ul>
+{% for line in lines %}
+    <li>
+        {{ line.name }}
+
+        <form method="POST"
+              action="{{ url_for('catalog.delete_line', id=segment.id) }}"
+              style="display:inline;">
+            <button type="submit">Delete</button>
+        </form>
+    </li>
+{% endfor %}
+</ul>

@@ -20,10 +20,14 @@ class Product(BaseModel):
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"))
     category = db.relationship("Category", backref="products")
 
-    segment = db.Column(db.String)
-    line = db.Column(db.String)
-    type = db.Column(db.String)
+    segment_id = db.Column(db.Integer, db.ForeignKey("segments.id"))
+    segment = db.relationship("Segment", backref="products")
 
+    line_id = db.Column(db.Integer, db.ForeignKey("lines.id"))
+    line = db.relationship("Line", backref="products")
+
+    style_id = db.Column(db.Integer, db.ForeignKey("styles.id"))
+    style = db.relationship("Style", backref="products")
     composition = db.Column(db.Text)
 
     # =========================

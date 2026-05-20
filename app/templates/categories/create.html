@@ -1,6 +1,21 @@
 {% extends "shared/base.html" %}
 
 {% block content %}
+<h3>📤 Import Categories (Excel)</h3>
+
+<form method="POST"
+      action="{{ url_for('categories.import_categories_excel') }}"
+      enctype="multipart/form-data">
+
+    <input type="file" name="file" accept=".xlsx" required>
+
+    <button type="submit">
+        ⬆ Upload Excel
+    </button>
+
+</form>
+
+<hr>
 
 <h2>📂 Categories</h2>
 

@@ -27,6 +27,9 @@ from app.modules.inventory.models import Inventory
 from app.modules.categories.models import Category
 from app.modules.product_variants.models import ProductVariant
 from app.modules.size_scales.models import SizeScale
+from app.modules.segment.models import Segment
+from app.modules.line.models import Line
+from app.modules.style.models import Style
 
 products_bp = Blueprint(
     "products",
@@ -39,310 +42,69 @@ products_bp = Blueprint(
 # CREATE PRODUCT
 # =========================================================
 # 
-@products_bp.route(
-    "/create",
-    methods=["GET", "POST"]
-)
+@products_bp.route("/create", methods=["GET", "POST"])
 @login_required
 def create_product():
 
-    brands = Brand.query.filter_by(
-        tenant_id=current_user.tenant_id
-    ).all()
-
-    categories = Category.query.filter_by(
-        tenant_id=current_user.tenant_id
-    ).all()
-
-    size_scales = SizeScale.query.filter_by(
-        tenant_id=current_user.tenant_id
-    ).all()
-
     if request.method == "POST":
 
-        try:
-
-            has_size = (
-                "has_size"
-                in request.form
-            )
+        product = Product(
 
-            has_color = (
-                "has_color"
-                in request.form
-            )
+            name=request.form.get("name"),
+            sku=request.form.get("sku"),
 
-            has_variants = (
-                has_size
-                or
-                has_color
-            )
+            season=request.form.get("season"),
+            year=request.form.get("year"),
 
-            product = Product(
+            category_id=request.form.get("category_id"),
 
-                # identity
-                name=request.form.get(
-                    "name",
-                    ""
-                ).strip(),
+            segment_id=request.form.get("segment_id") or None,
+            line_id=request.form.get("line_id") or None,
+            style_id=request.form.get("style_id") or None,
 
-                sku=request.form.get(
-                    "sku",
-                    ""
-                ).strip(),
+            price=request.form.get("price"),
 
-                season=request.form.get(
-                    "season"
-                ) or None,
+            purchase_currency=request.form.get("purchase_currency"),
+            cost=request.form.get("cost"),
+            landing_cost=request.form.get("landing_cost"),
+            average_cost=request.form.get("average_cost"),
 
-                year=(
-                    int(
-                        request.form.get(
-                            "year"
-                        )
-                    )
+            vat_taxable=bool(request.form.get("vat_taxable")),
 
-                    if request.form.get(
-                        "year"
-                    )
+            is_inventory_item=bool(request.form.get("is_inventory_item")),
 
-                    else None
-                ),
+            has_size=bool(request.form.get("has_size")),
+            has_color=bool(request.form.get("has_color")),
 
-                # classification
-                category_id=(
+            size_scale_id=request.form.get("size_scale_id"),
 
-                    int(
-                        request.form.get(
-                            "category_id"
-                        )
-                    )
+            brand_id=request.form.get("brand_id"),
+            tenant_id=current_user.tenant_id
 
-                    if request.form.get(
-                        "category_id"
-                    )
+        )
 
-                    else None
-                ),
+        db.session.add(product)
+        db.session.commit()
 
-                segment=request.form.get(
-                    "segment"
-                ),
+        return redirect(url_for("products.create_product"))
 
-                line=request.form.get(
-                    "line"
-                ),
+    segments = Segment.query.filter_by(
+        tenant_id=current_user.tenant_id
+    ).all()
 
-                type=request.form.get(
-                    "type"
-                ),
+    lines = Line.query.filter_by(
+        tenant_id=current_user.tenant_id
+    ).all()
 
-                composition=request.form.get(
-                    "composition"
-                ),
-
-                # pricing
-                price=float(
-
-                    request.form.get(
-                        "price",
-                        0
-                    ) or 0
-
-                ),
-
-                purchase_currency=request.form.get(
-                    "purchase_currency"
-                ),
-
-                cost=float(
-
-                    request.form.get(
-                        "cost",
-                        0
-                    ) or 0
-
-                ),
-
-                landing_cost=float(
-
-                    request.form.get(
-                        "landing_cost",
-                        0
-                    ) or 0
-
-                ),
-
-                average_cost=float(
-
-                    request.form.get(
-                        "average_cost",
-                        0
-                    ) or 0
-
-                ),
-
-                vat_taxable=(
-
-                    "vat_taxable"
-
-                    in request.form
-
-                ),
-
-                # inventory
-                is_inventory_item=(
-
-                    "is_inventory_item"
-
-                    in request.form
-
-                ),
-
-                has_size=has_size,
-
-                has_color=has_color,
-
-                size_scale_id=(
-
-                    int(
-                        request.form.get(
-                            "size_scale_id"
-                        )
-                    )
-
-                    if request.form.get(
-                        "size_scale_id"
-                    )
-
-                    else None
-                ),
-
-                # ownership
-                brand_id=int(
-                    request.form.get(
-                        "brand_id"
-                    )
-                ),
-
-                tenant_id=current_user.tenant_id,
-
-                # auto status
-                is_draft=has_variants,
-
-                is_active=(
-                    not has_variants
-                )
-
-            )
-
-            db.session.add(
-                product
-            )
-
-            db.session.flush()
-
-            quantity = int(
-
-                request.form.get(
-                    "quantity",
-                    0
-                ) or 0
-
-            )
-
-            if (
-
-                not has_variants
-
-                and
-
-                quantity > 0
-
-            ):
-
-                warehouse = Warehouse.query.filter_by(
-
-                    brand_id=product.brand_id,
-
-                    branch_id=None
-
-                ).first()
-
-                if warehouse:
-
-                    inventory = Inventory.query.filter_by(
-
-                        warehouse_id=warehouse.id,
-
-                        product_id=product.id
-
-                    ).first()
-
-                    if not inventory:
-
-                        inventory = Inventory(
-
-                            warehouse_id=warehouse.id,
-
-                            product_id=product.id,
-
-                            quantity=0
-
-                        )
-
-                        db.session.add(
-                            inventory
-                        )
-
-                    inventory.quantity += quantity
-
-            db.session.commit()
-
-            if has_variants:
-
-                return redirect(
-
-                    url_for(
-
-                        "product_variants.variant_matrix",
-
-                        product_id=product.id
-
-                    )
-
-                )
-
-            flash(
-                "Product created",
-                "success"
-            )
-
-            return redirect(
-                url_for(
-                    "tenant.dashboard"
-                )
-            )
-
-        except Exception as e:
-
-            db.session.rollback()
-
-            flash(
-                str(e),
-                "danger"
-            )
+    styles = Style.query.filter_by(
+        tenant_id=current_user.tenant_id
+    ).all()
 
     return render_template(
-
         "products/create.html",
-
-        brands=brands,
-
-        categories=categories,
-
-        size_scales=size_scales
-
+        segments=segments,
+        lines=lines,
+        styles=styles
     )
 
 

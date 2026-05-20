@@ -17,7 +17,7 @@ from app.modules.size_scales.models import (
 )
 
 from app.modules.size_scales.service import SizeScaleService
-
+import pandas as pd
 
 size_scales_bp = Blueprint(
     "size_scales",
@@ -36,53 +36,72 @@ size_scales_bp = Blueprint(
 @login_required
 def create_scale():
 
-    if request.method == "POST":
-
-        name = request.form.get("name", "").strip()
-        sizes = request.form.getlist("sizes[]")  # ✅ FIX HERE
-
-        if not name:
-            flash("Scale name required", "danger")
-            return redirect(url_for("size_scales.create_scale"))
-
-        # create scale
-        scale = SizeScale(
-            name=name,
+    if request.method == "GET":
+        scales = SizeScale.query.filter_by(
             tenant_id=current_user.tenant_id
+        ).all()
+
+        return render_template(
+            "size_scales/create.html",
+            scales=scales
         )
 
-        db.session.add(scale)
-        db.session.flush()  # get scale.id
+    name = request.form.get("name")
+    file = request.files.get("file")
 
-        # create size items
-        for index, size_value in enumerate(sizes, start=1):
+    if not name:
+        return "Scale name required", 400
 
-            size_value = size_value.strip()
-            if not size_value:
+    scale = SizeScale(
+        name=name,
+        tenant_id=current_user.tenant_id
+    )
+
+    db.session.add(scale)
+    db.session.flush()
+
+    sizes = []
+
+    # =========================
+    # CASE 1: EXCEL UPLOAD
+    # =========================
+    if file and file.filename.endswith(".xlsx"):
+
+        df = pd.read_excel(file)
+
+        if "size" not in df.columns:
+            return "Excel must contain 'size' column", 400
+
+        for i, row in df.iterrows():
+
+            if pd.isna(row["size"]):
                 continue
 
-            item = SizeScaleItem(
-                size_scale_id=scale.id,
-                value=size_value,
-                sort_order=index
-            )
+            sizes.append(str(row["size"]).strip())
 
-            db.session.add(item)
+    # =========================
+    # CASE 2: MANUAL INPUT
+    # =========================
+    else:
 
-        db.session.commit()
+        sizes = request.form.getlist("sizes[]")
 
-        flash("Size scale created successfully", "success")
+    # =========================
+    # SAVE SIZES
+    # =========================
+    for index, size_value in enumerate(sizes):
 
-        return redirect(url_for("size_scales.create_scale"))
+        item = SizeScaleItem(
+            scale_id=scale.id,
+            value=size_value,
+            sort_order=index
+        )
 
-    scales = SizeScale.query.filter_by(
-        tenant_id=current_user.tenant_id
-    ).all()
+        db.session.add(item)
 
-    return render_template(
-        "size_scales/create.html",
-        scales=scales
-    )
+    db.session.commit()
+
+    return redirect(url_for("size_scales.create_scale"))
 
 
 # =====================================================
